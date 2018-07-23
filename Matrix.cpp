@@ -119,10 +119,23 @@ istream& operator>> (istream& in, Matrix& item) {
     return in;
 } // 可用, 无检查
 ostream& operator<< (ostream& out, const Matrix& item) {
-
+    int maxnum=0,num;
     for(int i=0; i<item.row(); i++) {
         for(int j=0; j<item.col(); j++) {
-            out << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << setw(6) << item.data[i][j] << " ";
+            int cache=item.data[i][j];
+            num=0;
+            while(cache!=0){
+                num++;
+                cache/=10;
+            }
+            if(maxnum<num){
+                maxnum=num;
+            }
+        }
+    }
+    for(int i=0; i<item.row(); i++) {
+        for(int j=0; j<item.col(); j++) {
+            out << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << setw(Matrix::ACCU+maxnum+3) << item.data[i][j];
         }
         out << endl;
     }
@@ -141,7 +154,7 @@ bool Matrix::isMatrix() {
     return true;
 }
 
-unsigned short int Matrix::ACCU = 0;
+unsigned short int Matrix::ACCU = 50;
 
 int main(){
     // Debug
