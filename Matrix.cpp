@@ -17,21 +17,21 @@ struct mat{
     string name;
 };
 
-void help_info(void);
-void process(string,vector<mat>&,unsigned short int);
-void divide(string,int,vector<mat>&,unsigned short int);
-unsigned short int change_accu(unsigned short int);
-vector<vector<double> > calculate(string,vector<mat>&);
-bool check(string);
-bool check_name(string);                                            //检查等号右侧表达式是否出错/
+void help_info(void);                                               //提示信息
+void process(string,vector<mat>&,unsigned short int);               //粗处理输入的字符串
+void divide(string,int,vector<mat>&,unsigned short int);            //处理a=xxx的字符串，将右侧计算结果赋给a
+unsigned short int change_accu(unsigned short int);                 //更改显示结果的小数位数
+vector<vector<double> > calculate(string,vector<mat>&);             //返回字符串计算的结果
+bool check(string);                                                 //检查等号右侧表达式是否出错/
+bool check_name(string);                                            //检查变量名称是否合法
 vector<vector<double> > string2mat(string);                         //字符串转化为矩阵
-vector<mat>::iterator find_name(vector<mat>&,string);
+vector<mat>::iterator find_name(vector<mat>&,string);               //找到matdata中矩阵的名称并且返回这个mat元素的地址,如果没有则返回matdata.end()
 void show_mat(vector<vector<double> > matrix,unsigned short int);   //按照精度显示此矩阵
 int row(vector<vector<double> > matrix){return matrix.size();}      //行数
 int col(vector<vector<double> > matrix){return matrix[0].size();}   //列数
-vector<vector<double> > cal_adj(vector<vector<double> >);
-vector<vector<double> > cal_det(vector<vector<double> >);
-vector<vector<double> > cal_rank(vector<vector<double> >);
+vector<vector<double> > cal_adj(vector<vector<double> >);           //计算伴随矩阵
+vector<vector<double> > cal_det(vector<vector<double> >);           //计算行列式
+vector<vector<double> > cal_rank(vector<vector<double> >);          //计算秩
 
 int main(){
     cout<<"欢迎使用矩阵计算器！";
