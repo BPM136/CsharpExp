@@ -23,7 +23,7 @@ void divide(string,int,vector<mat>&,unsigned short int);
 unsigned short int change_accu(unsigned short int);
 vector<vector<double> > calculate(string,vector<mat>&);
 bool check(string);
-bool check_name(string);                                            //检查等号右侧表达式是否出错
+bool check_name(string);                                            //检查等号右侧表达式是否出错/
 vector<vector<double> > string2mat(string);                         //字符串转化为矩阵
 vector<mat>::iterator find_name(vector<mat>&,string);
 void show_mat(vector<vector<double> > matrix,unsigned short int);   //按照精度显示此矩阵
