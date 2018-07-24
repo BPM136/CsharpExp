@@ -25,19 +25,25 @@ private:
 
 public:
     Matrix() {
-        data = vector<vector<double> >();    //0*0的零矩阵
+        data = vector<vector<double> >();    //0*0的矩阵
         name = "";
         errorFlag = 0;
+        /*
+         * 0: 正常
+         * 1: 不是矩阵
+         * 2: 非法运算
+         * */
     }                                       //初始化
-    Matrix(const string&, const string&);   //
-    Matrix(const Matrix&);                  //
+    Matrix(const string& str, const string& name);   //
+    Matrix(const Matrix& other);                  //
 
-    Matrix operator+(Matrix right); // 矩阵加法
-    Matrix operator-(Matrix right); // 矩阵减法
-    Matrix operator*(Matrix right); // 矩阵乘法
-    Matrix operator*(double right); // 矩阵数乘
-    friend Matrix operator*(double left, Matrix right); // 矩阵数乘(数在左边)
-    Matrix operator/(double right); // 矩阵 除 数
+    Matrix operator+(const Matrix& right) const; // 矩阵加法
+    Matrix operator-(const Matrix& right) const; // 矩阵减法
+    Matrix operator*(const Matrix& right) const; // 矩阵乘法
+    Matrix operator/(const double& right) const; // 矩阵 除 数
+
+    Matrix operator*(const double& right) const; // 矩阵数乘
+    friend Matrix operator*(const double& left, const Matrix& right); // 矩阵数乘(数在左边)
 
     friend istream& operator>> (istream& in, Matrix& item);
     friend ostream& operator<< (ostream& out, const Matrix& item);
@@ -46,18 +52,23 @@ public:
         return data.size();
     }
     int col() const {
+        return this->row() == 0 ? 0 : data[0].size();
+
+
         return data[0].size();
     }
-    bool setName();
+    void setName(const string& name) {
+        this->name = name;
+    }
 
-    int rank();
-    int det();
+    int rank() const;
+    int det() const;
 
-    Matrix inv();
-    Matrix adj();
-    Matrix power(int);
+    Matrix inv() const;
+    Matrix adj() const;
+    Matrix power(int) const;
 
-    bool isMatrix();
+    bool isMatrix() const;
 
     static unsigned short int ACCU;
 
@@ -101,7 +112,8 @@ Matrix::Matrix(const string& str, const string& name = "") {
         }
     }
     this->name = name;
-    errorFlag = 0;
+    errorFlag = isMatrix() ? 0 : 1;
+
 } // 可用, 无检查
 
 Matrix::Matrix(const Matrix& other) {
@@ -119,6 +131,11 @@ istream& operator>> (istream& in, Matrix& item) {
 } // 可用, 无检查
 
 ostream& operator<< (ostream& out, const Matrix& item) {
+    if(item.errorFlag != 0) {
+        out << "You fucking try to output a piece of shit!" << endl;
+    }
+
+    // 对齐
     int maxnum=0,num;
     for(int i=0; i<item.row(); i++) {
         for(int j=0; j<item.col(); j++) {
@@ -133,6 +150,7 @@ ostream& operator<< (ostream& out, const Matrix& item) {
             }
         }
     }
+    // 输出
     for(int i=0; i<item.row(); i++) {
         for(int j=0; j<item.col(); j++) {
             out << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << setw(Matrix::ACCU+maxnum+3) << item.data[i][j];
@@ -142,11 +160,10 @@ ostream& operator<< (ostream& out, const Matrix& item) {
     return out;
 }
 
-bool Matrix::isMatrix() {
-    vector<vector<double> >::iterator it;
+bool Matrix::isMatrix() const {
     int col = data[0].size();
-    for(it=data.begin()+1; it!=data.end(); it++){
-        if(it->size() == col){
+    for(int i=0; i<data.size(); i++){
+        if(data[i].size() == col){
             continue;
         }
         return false;
@@ -154,14 +171,14 @@ bool Matrix::isMatrix() {
     return true;
 }
 
-Matrix Matrix::operator+(Matrix right) {
+Matrix Matrix::operator+(const Matrix& right) const {
     Matrix ans;
     if(this->errorFlag!=0 || right.errorFlag!=0){
-        ans.errorFlag = 2;
+        ans.errorFlag = 1;
         return ans;
     }
     else if(this->row()!=right.row() || this->col()!=right.col()) {
-        ans.errorFlag = 1;
+        ans.errorFlag = 2;
         return ans;
     }
     else {
@@ -177,14 +194,14 @@ Matrix Matrix::operator+(Matrix right) {
     }
 }
 
-Matrix Matrix::operator-(Matrix right) {
+Matrix Matrix::operator-(const Matrix& right) const {
     Matrix ans;
     if(this->errorFlag!=0 || right.errorFlag!=0){
-        ans.errorFlag = 2;
+        ans.errorFlag = 1;
         return ans;
     }
     else if(this->row()!=right.row() || this->col()!=right.col()) {
-        ans.errorFlag = 1;
+        ans.errorFlag = 2;
         return ans;
     }
     else {
@@ -200,7 +217,7 @@ Matrix Matrix::operator-(Matrix right) {
     }
 }
 
-Matrix Matrix::operator*(Matrix right) {
+Matrix Matrix::operator*(const Matrix& right) const {
     Matrix ans;
     if(this->col()!=right.row()) {
        ans.errorFlag = 2;
@@ -212,7 +229,7 @@ Matrix Matrix::operator*(Matrix right) {
         for(int j=0; j<right.col(); j++) {
             sum=0;
             for(int k=0; k<this->col(); k++) {
-                sum+=this->[i][k]*right.[k][j];
+                sum += this->data[i][k]*right.data[k][j];
             }
             newline.push_back(sum);
         }
@@ -222,7 +239,7 @@ Matrix Matrix::operator*(Matrix right) {
     return ans;
 }
 
-Matrix Matrix::operator*(double right) {
+Matrix Matrix::operator*(const double& right) const {
     Matrix ans=*this;
     for(int i=0; i<ans.row(); i++) {
         for (int j=0; j<ans.col(); j++) {
@@ -232,7 +249,7 @@ Matrix Matrix::operator*(double right) {
     return ans;
 }
 
-Matrix operator*(double left, Matrix right) {
+Matrix operator*(const double& left, const Matrix& right) {
     Matrix ans=right;
     for(int i=0; i<ans.row(); i++) {
         for (int j=0; j<ans.col(); j++) {
@@ -242,7 +259,7 @@ Matrix operator*(double left, Matrix right) {
     return ans;
 }
 
-Matrix Matrix::operator/(double right) {
+Matrix Matrix::operator/(const double& right) const {
     Matrix ans=*this;
     for(int i=0; i<ans.row(); i++) {
         for (int j=0; j<ans.col(); j++) {
@@ -260,7 +277,7 @@ int main(){
     Matrix a("[1, 2; 1, 2]", n);
     cin >> a;
     cout << "!!!1" << endl;
-    cout << a+a;
+    cout << a;
     cout << "???aaaaaaaaa" << endl;
     n = "fk";
 
