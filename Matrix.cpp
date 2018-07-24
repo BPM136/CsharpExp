@@ -25,7 +25,7 @@ private:
 
 public:
     Matrix() {
-        data = vector<vector<double> >(1, vector<double>(1, 0));    //1*1的零矩阵
+        data = vector<vector<double> >();    //0*0的零矩阵
         name = "";
         errorFlag = 0;
     }                                       //初始化
@@ -35,10 +35,9 @@ public:
     Matrix operator+(Matrix right); // 矩阵加法
     Matrix operator-(Matrix right); // 矩阵减法
     Matrix operator*(Matrix right); // 矩阵乘法
-    Matrix operator/(double right); // 矩阵 除 数
-
     Matrix operator*(double right); // 矩阵数乘
     friend Matrix operator*(double left, Matrix right); // 矩阵数乘(数在左边)
+    Matrix operator/(double right); // 矩阵 除 数
 
     friend istream& operator>> (istream& in, Matrix& item);
     friend ostream& operator<< (ostream& out, const Matrix& item);
@@ -201,6 +200,58 @@ Matrix Matrix::operator-(Matrix right) {
     }
 }
 
+Matrix Matrix::operator*(Matrix right) {
+    Matrix ans;
+    if(this->col()!=right.row()) {
+       ans.errorFlag = 2;
+       return ans;
+    }
+    vector<double> newline;
+    double sum;
+    for(int i=0; i<this->row(); i++) {
+        for(int j=0; j<right.col(); j++) {
+            sum=0;
+            for(int k=0; k<this->col(); k++) {
+                sum+=this->[i][k]*right.[k][j];
+            }
+            newline.push_back(sum);
+        }
+        ans.data.push_back(newline);
+        newline.clear();
+    }
+    return ans;
+}
+
+Matrix Matrix::operator*(double right) {
+    Matrix ans=*this;
+    for(int i=0; i<ans.row(); i++) {
+        for (int j=0; j<ans.col(); j++) {
+            ans.data[i][j]*=right;
+        }
+    }
+    return ans;
+}
+
+Matrix operator*(double left, Matrix right) {
+    Matrix ans=right;
+    for(int i=0; i<ans.row(); i++) {
+        for (int j=0; j<ans.col(); j++) {
+            ans.data[i][j]*=left;
+        }
+    }
+    return ans;
+}
+
+Matrix Matrix::operator/(double right) {
+    Matrix ans=*this;
+    for(int i=0; i<ans.row(); i++) {
+        for (int j=0; j<ans.col(); j++) {
+            ans.data[i][j]/=right;
+        }
+    }
+    return ans;
+}
+
 unsigned short int Matrix::ACCU = 1;
 
 int main(){
@@ -209,7 +260,7 @@ int main(){
     Matrix a("[1, 2; 1, 2]", n);
     cin >> a;
     cout << "!!!1" << endl;
-    cout << a;
+    cout << a+a;
     cout << "???aaaaaaaaa" << endl;
     n = "fk";
 
