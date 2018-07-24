@@ -12,10 +12,10 @@
 
 using namespace std;
 
-struct mat{
-    vector<vector<double> > matrix;
-    string name;
-};
+//struct mat{
+//    vector<vector<double> > matrix;
+//string name;
+//};
 
 class Matrix {
 private:
@@ -24,21 +24,21 @@ private:
     unsigned short int errorFlag;
 
 public:
-    Matrix() {       // Constructor
-        data = vector<vector<double> >(1, vector<double>(1, 0));
+    Matrix() {
+        data = vector<vector<double> >(1, vector<double>(1, 0));    //1*1çš„é›¶çŸ©é˜µ
         name = "";
         errorFlag = 0;
-    }
-    Matrix(const string&, const string&);  //
-    Matrix(const Matrix&); //
+    }                                       //åˆå§‹åŒ–
+    Matrix(const string&, const string&);   //
+    Matrix(const Matrix&);                  //
 
-    Matrix operator+(Matrix right); // ¾ØÕó¼Ó·¨
-    Matrix operator-(Matrix right); // ¾ØÕó¼õ·¨
-    Matrix operator*(Matrix right); // ¾ØÕó³Ë·¨
-    Matrix operator/(double right); // ¾ØÕó ³ı Êı
+    Matrix operator+(Matrix right); // çŸ©é˜µåŠ æ³•
+    Matrix operator-(Matrix right); // çŸ©é˜µå‡æ³•
+    Matrix operator*(Matrix right); // çŸ©é˜µä¹˜æ³•
+    Matrix operator/(double right); // çŸ©é˜µ é™¤ æ•°
 
-    Matrix operator*(double right); // ¾ØÕóÊı³Ë
-    friend Matrix operator*(double left, Matrix right); // ¾ØÕóÊı³Ë(ÊıÔÚ×ó±ß)
+    Matrix operator*(double right); // çŸ©é˜µæ•°ä¹˜
+    friend Matrix operator*(double left, Matrix right); // çŸ©é˜µæ•°ä¹˜(æ•°åœ¨å·¦è¾¹)
 
     friend istream& operator>> (istream& in, Matrix& item);
     friend ostream& operator<< (ostream& out, const Matrix& item);
@@ -70,12 +70,12 @@ public:
 //unsigned short int change_accu(unsigned short int);
 //vector<vector<double> > calculate(string,vector<mat>&);
 //bool check(string);
-//bool check_name(string);                                               //¼ì²éµÈºÅÓÒ²à±í´ïÊ½ÊÇ·ñ³ö´í
-//vector<vector<double> > string2mat(string);                         //×Ö·û´®×ª»¯Îª¾ØÕó
+//bool check_name(string);                                            //æ£€æŸ¥ç­‰å·å³ä¾§è¡¨è¾¾å¼æ˜¯å¦å‡ºé”™
+//vector<vector<double> > string2mat(string);                         //å­—ç¬¦ä¸²è½¬åŒ–ä¸ºçŸ©é˜µ
 //vector<mat>::iterator find_name(vector<mat>&,string);
-//void show_mat(vector<vector<double> > matrix,unsigned short int);   //°´ÕÕ¾«¶ÈÏÔÊ¾´Ë¾ØÕó
-//int row(vector<vector<double> > matrix){return matrix.size();}      //ĞĞÊı
-//int col(vector<vector<double> > matrix){return matrix[0].size();}   //ÁĞÊı
+//void show_mat(vector<vector<double> > matrix,unsigned short int);   //æŒ‰ç…§ç²¾åº¦æ˜¾ç¤ºæ­¤çŸ©é˜µ
+//int row(vector<vector<double> > matrix){return matrix.size();}      //è¡Œæ•°
+//int col(vector<vector<double> > matrix){return matrix[0].size();}   //åˆ—æ•°
 //vector<vector<double> > cal_adj(vector<vector<double> >);
 //vector<vector<double> > cal_det(vector<vector<double> >);
 //vector<vector<double> > cal_rank(vector<vector<double> >);
@@ -103,7 +103,7 @@ Matrix::Matrix(const string& str, const string& name = "") {
     }
     this->name = name;
     errorFlag = 0;
-} // ¿ÉÓÃ, ÎŞ¼ì²é
+} // å¯ç”¨, æ— æ£€æŸ¥
 
 Matrix::Matrix(const Matrix& other) {
     data = other.data;
@@ -117,7 +117,8 @@ istream& operator>> (istream& in, Matrix& item) {
     item.data.clear();
     item = Matrix(buf, item.name);
     return in;
-} // ¿ÉÓÃ, ÎŞ¼ì²é
+} // å¯ç”¨, æ— æ£€æŸ¥
+
 ostream& operator<< (ostream& out, const Matrix& item) {
     int maxnum=0,num;
     for(int i=0; i<item.row(); i++) {
@@ -140,7 +141,7 @@ ostream& operator<< (ostream& out, const Matrix& item) {
         out << endl;
     }
     return out;
-} // ÎŞ¶ÔÆë
+}
 
 bool Matrix::isMatrix() {
     vector<vector<double> >::iterator it;
@@ -154,7 +155,53 @@ bool Matrix::isMatrix() {
     return true;
 }
 
-unsigned short int Matrix::ACCU = 50;
+Matrix Matrix::operator+(Matrix right) {
+    Matrix ans;
+    if(this->errorFlag!=0 || right.errorFlag!=0){
+        ans.errorFlag = 2;
+        return ans;
+    }
+    else if(this->row()!=right.row() || this->col()!=right.col()) {
+        ans.errorFlag = 1;
+        return ans;
+    }
+    else {
+        vector<double> newline;
+        for(int i=0; i<this->row(); i++) {
+            for(int j=0; j<this->col(); j++) {
+                newline.push_back(this->data[i][j]+right.data[i][j]);
+            }
+            ans.data.push_back(newline);
+            newline.clear();
+        }
+        return ans;
+    }
+}
+
+Matrix Matrix::operator-(Matrix right) {
+    Matrix ans;
+    if(this->errorFlag!=0 || right.errorFlag!=0){
+        ans.errorFlag = 2;
+        return ans;
+    }
+    else if(this->row()!=right.row() || this->col()!=right.col()) {
+        ans.errorFlag = 1;
+        return ans;
+    }
+    else {
+        vector<double> newline;
+        for(int i=0; i<this->row(); i++) {
+            for(int j=0; j<this->col(); j++) {
+                newline.push_back(this->data[i][j]-right.data[i][j]);
+            }
+            ans.data.push_back(newline);
+            newline.clear();
+        }
+        return ans;
+    }
+}
+
+unsigned short int Matrix::ACCU = 1;
 
 int main(){
     // Debug
@@ -167,7 +214,7 @@ int main(){
     n = "fk";
 
 //
-//    cout<<"»¶Ó­Ê¹ÓÃ¾ØÕó¼ÆËãÆ÷£¡";
+//    cout<<"æ¬¢è¿ä½¿ç”¨çŸ©é˜µè®¡ç®—å™¨ï¼";
 //    help_info();
 //    unsigned short int accuracy;
 //    vector<mat> matdata;
@@ -185,32 +232,32 @@ int main(){
 }
 
 //void help_info(void){
-//    cout<<"Ê¹ÓÃ·½·¨£º"<<endl;
-//    cout<<"1.ÊäÈë¾ØÕó£ºÊäÈë¾ØÕóĞèÒª°´ÕÕ¸ñÊ½[X1,X2,X3;X4,X5,X6]µÄ¸ñÊ½½øĞĞÊäÈë£¬·ÖºÅ¡°;¡°´ú±í»»ĞĞ£¬ÖĞÀ¨ºÅ¡°[¡°£¬¡°]¡°´ú±í¾ØÕóµÄ¿ªÊ¼ºÍ½áÊø£¬XiÎª³£Êı¡£"<<endl;
+//    cout<<"ä½¿ç”¨æ–¹æ³•ï¼š"<<endl;
+//    cout<<"1.è¾“å…¥çŸ©é˜µï¼šè¾“å…¥çŸ©é˜µéœ€è¦æŒ‰ç…§æ ¼å¼[X1,X2,X3;X4,X5,X6]çš„æ ¼å¼è¿›è¡Œè¾“å…¥ï¼Œåˆ†å·â€œ;â€œä»£è¡¨æ¢è¡Œï¼Œä¸­æ‹¬å·â€œ[â€œï¼Œâ€œ]â€œä»£è¡¨çŸ©é˜µçš„å¼€å§‹å’Œç»“æŸï¼ŒXiä¸ºå¸¸æ•°ã€‚"<<endl;
 //    cout<<"                   X1 X2 X3"<<endl;
-//    cout<<"ÈôÈç´Ë£¬½«µÃµ½¾ØÕó X4 X5 X6"<<endl;
-//    cout<<"2.¸³Öµ£ºÊäÈë¡°a=[X1,X2,X3;X4,X5,X6]¡°¼´¼ÇaÎª¾ØÕó[X1,X2,X3;X4,X5,X6]¡£¶ÔÓÚÃ¿Ò»¸öµÈÊ½£¬½«µÈºÅÓÒ²àµÄ¾ØÕóÔËËã½á¹û¸³Öµ¸ø×ó²à±äÁ¿¡£±äÁ¿µÄÃû³ÆÖ»ÄÜÈ¡´óĞ¡Ğ´×ÖÄ¸,²¢ÇÒ²»ÄÜÎªrank,det,quitµÈ¹¦ÄÜĞÔ×Ö·û´®¡£"<<endl;
-//    cout<<"3.ÔËËã£ººÏ·¨µÄÔËËã·û°üÀ¨¡°(¡°(×óÀ¨ºÅ),¡°)¡°(ÓÒÀ¨ºÅ),¡°+¡°(¼Ó),¡°-¡°(¼õ),¡°*¡°(³Ë),¡°^¡°(Ãİ)¡°,¡°det()¡°(È¡ĞĞÁĞÊ½),¡°rank()¡°(È¡ÖÈ),¡°adj()¡°(È¡°éËæ¾ØÕó),¡°^-1¡°(È¡Äæ),È¡ĞĞÁĞÊ½ÓëÈ¡ÖÈµÄÓÅÏÈ¼¶½ö´ÎÓÚÀ¨ºÅ£¬²¢ÇÒÓëÆäÓÒ²à¾ØÕóÔËËã¡£ÆäËûÒ»°ãÔËËã·ûÓÅÏÈ¼¶ÕÕ³£¡£"<<endl;
-//    cout<<"4.Ê¹ÓÃ¾ÙÀı£ºÈçÊäÈë a=[2,3;1,4]"<<endl;
+//    cout<<"è‹¥å¦‚æ­¤ï¼Œå°†å¾—åˆ°çŸ©é˜µ X4 X5 X6"<<endl;
+//    cout<<"2.èµ‹å€¼ï¼šè¾“å…¥â€œa=[X1,X2,X3;X4,X5,X6]â€œå³è®°aä¸ºçŸ©é˜µ[X1,X2,X3;X4,X5,X6]ã€‚å¯¹äºæ¯ä¸€ä¸ªç­‰å¼ï¼Œå°†ç­‰å·å³ä¾§çš„çŸ©é˜µè¿ç®—ç»“æœèµ‹å€¼ç»™å·¦ä¾§å˜é‡ã€‚å˜é‡çš„åç§°åªèƒ½å–å¤§å°å†™å­—æ¯,å¹¶ä¸”ä¸èƒ½ä¸ºrank,det,quitç­‰åŠŸèƒ½æ€§å­—ç¬¦ä¸²ã€‚"<<endl;
+//    cout<<"3.è¿ç®—ï¼šåˆæ³•çš„è¿ç®—ç¬¦åŒ…æ‹¬â€œ(â€œ(å·¦æ‹¬å·),â€œ)â€œ(å³æ‹¬å·),â€œ+â€œ(åŠ ),â€œ-â€œ(å‡),â€œ*â€œ(ä¹˜),â€œ^â€œ(å¹‚)â€œ,â€œdet()â€œ(å–è¡Œåˆ—å¼),â€œrank()â€œ(å–ç§©),â€œadj()â€œ(å–ä¼´éšçŸ©é˜µ),â€œ^-1â€œ(å–é€†),å–è¡Œåˆ—å¼ä¸å–ç§©çš„ä¼˜å…ˆçº§ä»…æ¬¡äºæ‹¬å·ï¼Œå¹¶ä¸”ä¸å…¶å³ä¾§çŸ©é˜µè¿ç®—ã€‚å…¶ä»–ä¸€èˆ¬è¿ç®—ç¬¦ä¼˜å…ˆçº§ç…§å¸¸ã€‚"<<endl;
+//    cout<<"4.ä½¿ç”¨ä¸¾ä¾‹ï¼šå¦‚è¾“å…¥ a=[2,3;1,4]"<<endl;
 //    cout<<"                   b=[2,5;1,7]"<<endl;
 //    cout<<"                   a*rank(b)"<<endl;
-//    cout<<"½«µÃµ½¾ØÕó:   4 6"<<endl;
+//    cout<<"å°†å¾—åˆ°çŸ©é˜µ:   4 6"<<endl;
 //    cout<<"              2 8"<<endl;
-//    cout<<"Èç¹ûÏëÒª¸ü¸ÄÏÔÊ¾¾«¶È£¬ÇëÊäÈëaccuracy"<<endl;
-//    cout<<"Èç¹ûÏëÒªÍË³ö£¬ÇëÊäÈë¡°quit¡°¡£"<<endl;
+//    cout<<"å¦‚æœæƒ³è¦æ›´æ”¹æ˜¾ç¤ºç²¾åº¦ï¼Œè¯·è¾“å…¥accuracy"<<endl;
+//    cout<<"å¦‚æœæƒ³è¦é€€å‡ºï¼Œè¯·è¾“å…¥â€œquitâ€œã€‚"<<endl;
 //}
 //
 //unsigned short int change_accu(unsigned short int accuracy){
 //    unsigned short int new_accu;
-//    cout<<"µ±Ç°¾«¶ÈÊÇ"<<accuracy<<endl;
-//    cout<<"¾«¶È´ú±íÊä³ö½á¹û±£ÁôµÄĞ¡ÊıµãÎ»Êı£¬¾«¶ÈÎª0´ú±íÊä³öÕûÊı½á¹û£º"<<endl;
-//    cout<<"ÇëÊäÈëĞÂµÄ¾«¶È£¬ÊäÈë¡°-1¡°²»½øĞĞ¸Ä±ä£º";
+//    cout<<"å½“å‰ç²¾åº¦æ˜¯"<<accuracy<<endl;
+//    cout<<"ç²¾åº¦ä»£è¡¨è¾“å‡ºç»“æœä¿ç•™çš„å°æ•°ç‚¹ä½æ•°ï¼Œç²¾åº¦ä¸º0ä»£è¡¨è¾“å‡ºæ•´æ•°ç»“æœï¼š"<<endl;
+//    cout<<"è¯·è¾“å…¥æ–°çš„ç²¾åº¦ï¼Œè¾“å…¥â€œ-1â€œä¸è¿›è¡Œæ”¹å˜ï¼š";
 //    cin>>new_accu;
 //    if(new_accu==(unsigned short int)-1){
 //        return accuracy;
 //    }
 //    else if(new_accu>16){
-//        cout<<"¾«¶È´óÓÚ16£¬³¬³ödoubleÀàĞÍµÄ¾«¶È£¬×Ô¶¯½«¾«¶ÈÉèÎª16¡£";
+//        cout<<"ç²¾åº¦å¤§äº16ï¼Œè¶…å‡ºdoubleç±»å‹çš„ç²¾åº¦ï¼Œè‡ªåŠ¨å°†ç²¾åº¦è®¾ä¸º16ã€‚";
 //        return 16;
 //    }
 //    else return new_accu;
@@ -263,7 +310,7 @@ int main(){
 //        }
 //    }
 //    if(check(command)==0){
-//        cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º"<<endl;
+//        cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š"<<endl;
 //        return;
 //    }
 //    show_mat(calculate(command,matdata),accu);
@@ -272,7 +319,7 @@ int main(){
 //void divide(string command,int equal_index,vector<mat> &matdata,unsigned short int accu){
 //    for(int check_index=equal_index+1;command[check_index]!='\0';check_index++){
 //        if(command[check_index]=='='){
-//            cout<<"ÊäÈëÁË¹ı¶àµÄµÈÓÚºÅ£¬ÇëÖØĞÂÊäÈë£º"<<endl;
+//            cout<<"è¾“å…¥äº†è¿‡å¤šçš„ç­‰äºå·ï¼Œè¯·é‡æ–°è¾“å…¥ï¼š"<<endl;
 //            return;
 //        }
 //    }
@@ -281,7 +328,7 @@ int main(){
 //    divide1=command.substr(0,equal_index);
 //    divide2=command.substr(equal_index+1,sizeof(command)/sizeof(command[0])-equal_index);
 //    if(!(check(divide2)&&check_name(divide1))){
-//        cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º"<<endl;
+//        cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š"<<endl;
 //        return;
 //    }
 //    vector<mat>::iterator it;
@@ -303,8 +350,8 @@ int main(){
 //}
 //
 //vector<vector<double> > calculate(string command,vector<mat> &matdata){
-//    int index;  //ÏÂ±ê
-//    int brac_l,brac_r,brac_num,brac_index;   //À¨ºÅ
+//    int index;  //ä¸‹æ ‡
+//    int brac_l,brac_r,brac_num,brac_index;   //æ‹¬å·
 //    for(index=0;command[index]!='\0';index++){
 //
 //        if(command.substr(index,5)=="rank("){
@@ -319,7 +366,7 @@ int main(){
 //                }
 //            }
 //            if(command[brac_index]=='\0'){
-//                cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º";
+//                cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š";
 //                vector<vector<double> > fail;
 //                return fail;
 //            }
@@ -352,7 +399,7 @@ int main(){
 //                }
 //            }
 //            if(command[brac_index]=='\0'){
-//                cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º";
+//                cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š";
 //                vector<vector<double> > fail;
 //                return fail;
 //            }
@@ -385,7 +432,7 @@ int main(){
 //                }
 //            }
 //            if(command[brac_index]=='\0'){
-//                cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º";
+//                cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š";
 //                vector<vector<double> > fail;
 //                return fail;
 //            }
