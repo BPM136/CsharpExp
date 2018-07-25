@@ -396,7 +396,7 @@ Matrix Matrix::inv() const {
         }
         for(int p=i+1; p<order; p++) {
             double ratio=copy.data[p][i]/copy.data[i][i];
-            for(int q=i; q<order; q++) {
+            for(int q=0; q<order; q++) {
                 copy.data[p][q]-=ratio*copy.data[i][q];
                 ans.data[p][q]-=ratio*ans.data[i][q];
             }
@@ -405,7 +405,7 @@ Matrix Matrix::inv() const {
     for(int i=1; i<order; i++) {
         for(int j=0; j<i; j++) {
             double ratio=copy.data[j][i]/copy.data[i][i];
-            for(int p=i; p<order; p++) {
+            for(int p=0; p<order; p++) {
                 copy.data[j][p]-=ratio*copy.data[i][p];
                 ans.data[j][p]-=ratio*ans.data[i][p];
             }
@@ -419,7 +419,7 @@ Matrix Matrix::inv() const {
     return ans;
 }
 
-unsigned short int Matrix::ACCU = 1;
+unsigned short int Matrix::ACCU = 2;
 
 int main(){
     // Debug
