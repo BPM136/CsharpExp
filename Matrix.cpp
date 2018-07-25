@@ -34,14 +34,14 @@ public:
          * 2: 非法运算
          * */
     }                                       //初始化
-    Matrix(const string& str, const string& name);   //
-    Matrix(const Matrix& other);                  //
+    Matrix(const string& str, const string& name);
+    Matrix(const Matrix& other);
 
     Matrix operator+(const Matrix& right) const; // 矩阵加法
     Matrix operator-(const Matrix& right) const; // 矩阵减法
     Matrix operator*(const Matrix& right) const; // 矩阵乘法
-    Matrix operator/(const double& right) const; // 矩阵 除 数
 
+    Matrix operator/(const double& right) const; // 矩阵 除 数
     Matrix operator*(const double& right) const; // 矩阵数乘
     friend Matrix operator*(const double& left, const Matrix& right); // 矩阵数乘(数在左边)
 
@@ -53,24 +53,21 @@ public:
     }
     int col() const {
         return this->row() == 0 ? 0 : data[0].size();
-
-
-        return data[0].size();
     }
     void setName(const string& name) {
         this->name = name;
     }
 
-    int rank() const;
-    int det() const;
+    int rank() const; //计算秩
+    double det() const; //计算行列式
 
-    Matrix inv() const;
-    Matrix adj() const;
-    Matrix power(int) const;
+    Matrix inv() const; //计算逆
+    Matrix adj() const; //计算伴随矩阵
+    Matrix power(int) const; //计算幂
 
-    bool isMatrix() const;
+    bool isMatrix() const; //返回是否是矩阵
 
-    static unsigned short int ACCU;
+    static unsigned short int ACCU; //显示精度
 
 };
 //
@@ -269,6 +266,66 @@ Matrix Matrix::operator/(const double& right) const {
     return ans;
 }
 
+double Matrix::det() const {
+    Matrix tri=*this;
+    if(this->row()!=this->col()) {
+        //error!!!
+    }
+    int order=this->row();
+    double ans=1;
+    for(int i=0; i<order; i++) {
+        for(int j=i+1; j<order; j++) {
+            double ratio=tri.data[j][i]/tri.data[i][i];
+            for(int k=i; k<order; k++) {
+                tri.data[j][k]-=ratio*tri.data[i][k];
+            }
+        }
+    } //将tri化为上三角矩阵
+    for(int i=0; i<order; i++) {
+        ans*=tri.data[i][i];
+    } //计算tri的行列式
+    return ans;
+}
+
+int Matrix::rank() const {
+    Matrix tri=*this;
+    int ans=0;
+    if(this->row()>=this->col()) {
+        int order=this->col();
+        for(int i=0; i<order; i++) {
+            for(int j=i+1; j<this->row(); j++) {
+                double ratio=tri.data[j][i]/tri.data[i][i];
+                for(int k=i; k<order; k++) {
+                    tri.data[j][k]-=ratio*tri.data[i][k];
+                }
+            }
+        } //将tri化为上三角矩阵
+        for(int i=0; i<order; i++) {
+            if(tri.data[i][i]!=0) {
+                ans++;
+            }
+        } //对角线上非0元素的个数即秩
+        return ans;
+    }
+    else {
+        int order=this->row();
+        for(int i=0; i<order; i++) {
+            for(int j=i+1; j<this->col(); j++) {
+                double ratio=tri.data[i][j]/tri.data[i][i];
+                for(int k=i; k<order; k++) {
+                    tri.data[k][j]-=ratio*tri.data[k][i];
+                }
+            }
+        } //将tri化为下三角矩阵
+        for(int i=0; i<order; i++) {
+            if(tri.data[i][i]!=0) {
+                ans++;
+            }
+        } //对角线上非0元素的个数即秩
+        return ans;
+    }
+}
+
 unsigned short int Matrix::ACCU = 1;
 
 int main(){
@@ -277,7 +334,7 @@ int main(){
     Matrix a("[1, 2; 1, 2]", n);
     cin >> a;
     cout << "!!!1" << endl;
-    cout << a;
+    cout << a.rank();
     cout << "???aaaaaaaaa" << endl;
     n = "fk";
 
