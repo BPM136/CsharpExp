@@ -237,7 +237,7 @@ Matrix Matrix::operator*(const Matrix& right) const {
 }
 
 Matrix Matrix::operator*(const double& right) const {
-    Matrix ans=*this;
+    Matrix ans =* this;
     for(int i=0; i<ans.row(); i++) {
         for (int j=0; j<ans.col(); j++) {
             ans.data[i][j]*=right;
@@ -247,7 +247,7 @@ Matrix Matrix::operator*(const double& right) const {
 }
 
 Matrix operator*(const double& left, const Matrix& right) {
-    Matrix ans=right;
+    Matrix ans = right;
     for(int i=0; i<ans.row(); i++) {
         for (int j=0; j<ans.col(); j++) {
             ans.data[i][j]*=left;
@@ -267,13 +267,30 @@ Matrix Matrix::operator/(const double& right) const {
 }
 
 double Matrix::det() const {
-    Matrix tri=*this;
+    Matrix tri = *this;
     if(this->row()!=this->col()) {
         //error!!!
     }
     int order=this->row();
     double ans=1;
     for(int i=0; i<order; i++) {
+        if(tri.data[i][i]==0) {
+            int m=i+1;
+            while(m<order && tri.data[m][i]==0) {
+                m++;
+            }
+            if(m==order) {
+                return 0;
+            }
+            else {
+                double cache;
+                for(int q=i; q<order; q++) {
+                    cache=tri.data[m][q];
+                    tri.data[m][q]=tri.data[i][q];
+                    tri.data[i][q]=cache;
+                } //交换第m行和第i行
+            }
+        }
         for(int j=i+1; j<order; j++) {
             double ratio=tri.data[j][i]/tri.data[i][i];
             for(int k=i; k<order; k++) {
@@ -288,42 +305,118 @@ double Matrix::det() const {
 }
 
 int Matrix::rank() const {
-    Matrix tri=*this;
+    Matrix tri = *this;
     int ans=0;
-    if(this->row()>=this->col()) {
-        int order=this->col();
-        for(int i=0; i<order; i++) {
-            for(int j=i+1; j<this->row(); j++) {
-                double ratio=tri.data[j][i]/tri.data[i][i];
-                for(int k=i; k<order; k++) {
-                    tri.data[j][k]-=ratio*tri.data[i][k];
+    int i=0,j=0;
+    while(i<this->row() && j<this->col()) {
+        if(tri.data[i][j]==0) {
+            int m=i+1;
+            while(m<this->row() && tri.data[m][j]==0) {
+                m++;
+            }
+            if(m==this->row()) {
+                j++;
+                continue;
+            }
+            else {
+                double cache;
+                for(int q=i; q<this->col(); q++) {
+                    cache=tri.data[m][q];
+                    tri.data[m][q]=tri.data[i][q];
+                    tri.data[i][q]=cache;
+                } //交换第m行和第i行
+            }
+        }
+        else {
+            for(int p=i+1; p<this->row(); p++) {
+                double ratio=tri.data[p][j]/tri.data[i][j];
+                for(int q=j; q<this->col(); q++) {
+                    tri.data[p][q]-=ratio*tri.data[i][q];
                 }
             }
-        } //将tri化为上三角矩阵
-        for(int i=0; i<order; i++) {
-            if(tri.data[i][i]!=0) {
-                ans++;
-            }
-        } //对角线上非0元素的个数即秩
-        return ans;
+            i++;
+            j++;
+        } //将tri化为阶梯形
     }
-    else {
-        int order=this->row();
-        for(int i=0; i<order; i++) {
-            for(int j=i+1; j<this->col(); j++) {
-                double ratio=tri.data[i][j]/tri.data[i][i];
-                for(int k=i; k<order; k++) {
-                    tri.data[k][j]-=ratio*tri.data[k][i];
+    int n=0,k=0;
+    while(n<this->row() && k<this->col()) {
+        if(tri.data[n][k]>1e-10 || tri.data[n][k]<-1e-10) {
+            ans++;
+            n++;
+            k++;
+        }
+        else {
+            k++;
+        }
+    }
+    if(tri.data[4][2]==0){
+        cout<<"hi";
+    }
+    else cout<<"no";
+    return ans;
+}
+
+Matrix Matrix::inv() const {
+    Matrix copy = *this;
+    if(this->row()!=this->col()) {
+        copy.errorFlag=2;
+        return copy;
+    }
+    Matrix ans = *this;
+    int order = this->row();
+    for(int i=0; i<order; i++) {
+        for(int j=0; j<order; j++) {
+            if(i==j) {
+                ans.data[i][j]=1;
+            }
+            else ans.data[i][j]=0;
+        }
+    } //创建单位矩阵ans
+    for(int i=0; i<order; i++) {
+        if(copy.data[i][i]==0) {
+            int k=i+1;
+            while(k<order || copy.data[k][i]==0) {
+                k++;
+            }
+            if(k==order) {
+                copy.errorFlag=2;
+                return copy; //非满秩矩阵不可求逆
+            }
+            else {
+                double cache;
+                for(int n=i; n<order; n++) {
+                    cache=copy.data[k][n];
+                    copy.data[k][n]=copy.data[i][n];
+                    copy.data[i][n]=cache;
+                    cache=ans.data[k][n];
+                    ans.data[k][n]=ans.data[i][n];
+                    ans.data[i][n]=cache;
                 }
+            } //交换第k行和第i行
+        }
+        for(int p=i+1; p<order; p++) {
+            double ratio=copy.data[p][i]/copy.data[i][i];
+            for(int q=i; q<order; q++) {
+                copy.data[p][q]-=ratio*copy.data[i][q];
+                ans.data[p][q]-=ratio*ans.data[i][q];
             }
-        } //将tri化为下三角矩阵
-        for(int i=0; i<order; i++) {
-            if(tri.data[i][i]!=0) {
-                ans++;
+        }
+    } //copy矩阵化为上三角
+    for(int i=1; i<order; i++) {
+        for(int j=0; j<i; j++) {
+            double ratio=copy.data[j][i]/copy.data[i][i];
+            for(int p=i; p<order; p++) {
+                copy.data[j][p]-=ratio*copy.data[i][p];
+                ans.data[j][p]-=ratio*ans.data[i][p];
             }
-        } //对角线上非0元素的个数即秩
-        return ans;
+        }
+    } //copy矩阵化为对角
+    for(int i=0; i<order; i++) {
+        for(int j=0; j<order; j++) {
+            ans.data[i][j]/=copy.data[i][i];
+        }
     }
+    return ans;
 }
 
 unsigned short int Matrix::ACCU = 1;
@@ -334,7 +427,7 @@ int main(){
     Matrix a("[1, 2; 1, 2]", n);
     cin >> a;
     cout << "!!!1" << endl;
-    cout << a.rank();
+    cout << a.inv();
     cout << "???aaaaaaaaa" << endl;
     n = "fk";
 
