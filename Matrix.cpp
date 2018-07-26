@@ -419,6 +419,15 @@ Matrix Matrix::inv() const {
     return ans;
 }
 
+Matrix Matrix::adj() const {
+    Matrix ans = *this;
+    if(this->row()!=this->col()) {
+        ans.errorFlag=2;
+        return ans;
+    }
+    return ans.inv()*ans.det();
+}
+
 unsigned short int Matrix::ACCU = 2;
 
 int main(){
@@ -427,7 +436,7 @@ int main(){
     Matrix a("[1, 2; 1, 2]", n);
     cin >> a;
     cout << "!!!1" << endl;
-    cout << a.inv();
+    cout << a.adj();
     cout << "???aaaaaaaaa" << endl;
     n = "fk";
 
