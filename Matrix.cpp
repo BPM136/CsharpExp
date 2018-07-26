@@ -33,11 +33,6 @@ public:
         data = vector<vector<double> >();    //0*0的矩阵
         name = "";
         errorFlag = 0;
-        /*
-         * 0: 正常
-         * 1: 不是矩阵
-         * 2: 非法运算
-         * */
     }                                       //初始化
     Matrix(const string& str, const string& name);
     Matrix(const Matrix& other);
@@ -421,6 +416,15 @@ Matrix Matrix::inv() const {
     return ans;
 }
 
+Matrix Matrix::adj() const {
+    Matrix ans = *this;
+    if(this->row()!=this->col()) {
+        ans.errorFlag=2;
+        return ans;
+    }
+    return ans.inv()*ans.det();
+}
+
 unsigned short int Matrix::ACCU = 2;
 
 int main(){
@@ -453,11 +457,6 @@ int main(){
 //        else process(command,matdata,accuracy);
 //    }
 }
-
-// ^
-// inv rank dev adj
-// * /
-// + -
 
 //void help_info(void){
 //    cout<<"使用方法："<<endl;
