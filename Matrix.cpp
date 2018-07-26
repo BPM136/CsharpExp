@@ -22,6 +22,11 @@ private:
     vector<vector<double> > data;
     string name;
     unsigned short int errorFlag;
+    /*
+     * 0: 正常
+     * 1: 不是矩阵
+     * 2: 非法运算
+     * */
 
 public:
     Matrix() {
@@ -269,7 +274,7 @@ Matrix Matrix::operator/(const double& right) const {
 double Matrix::det() const {
     Matrix tri = *this;
     if(this->row()!=this->col()) {
-        //error!!!
+        throw 0; // 外层 try-catch, 请
     }
     int order=this->row();
     double ans=1;
@@ -362,16 +367,13 @@ Matrix Matrix::inv() const {
         copy.errorFlag=2;
         return copy;
     }
-    Matrix ans = *this;
+    Matrix ans;
+    ans.data = vector<vector<double> >(row(), vector<double>(col(), 0));
     int order = this->row();
     for(int i=0; i<order; i++) {
-        for(int j=0; j<order; j++) {
-            if(i==j) {
-                ans.data[i][j]=1;
-            }
-            else ans.data[i][j]=0;
-        }
+        ans.data[i][i] = 1;
     } //创建单位矩阵ans
+
     for(int i=0; i<order; i++) {
         if(copy.data[i][i]==0) {
             int k=i+1;
@@ -424,12 +426,15 @@ unsigned short int Matrix::ACCU = 2;
 int main(){
     // Debug
     string n = "testName";
-    Matrix a("[1, 2; 1, 2]", n);
-    cin >> a;
-    cout << "!!!1" << endl;
-    cout << a.inv();
-    cout << "???aaaaaaaaa" << endl;
-    n = "fk";
+    Matrix a("[1, 2, 3; 1, 2, 3]", n);
+
+    // 使用 .det() 请使用这种形式
+    try {
+        cout << a.det() << endl;
+    } catch(int) {
+        cout <<  "非方阵不可求行列式" << endl;
+    }
+
 
 //
 //    cout<<"欢迎使用矩阵计算器！";
@@ -448,6 +453,11 @@ int main(){
 //        else process(command,matdata,accuracy);
 //    }
 }
+
+// ^
+// inv rank dev adj
+// * /
+// + -
 
 //void help_info(void){
 //    cout<<"使用方法："<<endl;
