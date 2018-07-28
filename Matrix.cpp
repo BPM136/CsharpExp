@@ -425,20 +425,55 @@ Matrix Matrix::adj() const {
     return ans.inv()*ans.det();
 }
 
+Matrix Matrix::power(int exp) const {
+    Matrix ans = *this;
+    if(this->row()!=this->col()) {
+        ans.errorFlag=2;
+        return ans;
+    }
+    if(exp<0) {
+        return ans.inv().power(-exp); //逆的-exp次方
+    }
+    else if(exp==0) {
+        ans.data = vector<vector<double> >(row(), vector<double>(col(), 0));
+        return ans; //单位矩阵
+    }
+    else if(exp==1) {
+        return ans;
+    }
+    else return ans*ans(exp-1);
+    /* 如果用快速幂
+    else if(exp==2) {
+        return ans*ans;
+    }
+    else {
+        if(exp%2==0) {
+            return ans.power(exp/2).power(2);
+        }
+        else return ans.power((exp-1)/2).power(2)*ans;
+    }
+    */
+}
+
 unsigned short int Matrix::ACCU = 2;
 
-int main(){
+int main() {
     // Debug
     string n = "testName";
-    Matrix a("[1, 2, 3; 1, 2, 3]", n);
-
+    Matrix a("[1, 1.1, 1.3; 1.2, 1.2, -1; 1.1, 0, 1.3]", n);
+    for(int i=0;i<10000;i++){
+        system("cls");
+        cout << a.power(100);
+        cout << i;
+    }
     // 使用 .det() 请使用这种形式
     try {
         cout << a.det() << endl;
-    } catch(int) {
-        cout <<  "非方阵不可求行列式" << endl;
+    } catch (int) {
+        cout << "非方阵不可求行列式" << endl;
     }
-
+    getch();
+}
 
 //
 //    cout<<"欢迎使用矩阵计算器！";
@@ -456,7 +491,7 @@ int main(){
 //        }
 //        else process(command,matdata,accuracy);
 //    }
-}
+
 
 //void help_info(void){
 //    cout<<"使用方法："<<endl;
