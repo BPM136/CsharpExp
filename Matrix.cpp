@@ -110,7 +110,10 @@ Matrix::Matrix(const string& str, const string& name = "") {
             numstr=str.substr(index,i-index);
             read.str(numstr);
             read>>num;
-            newline.push_back(num);
+            if(index>=1&&str[index-1]=='-') {
+                newline.push_back(-num);
+            }
+            else newline.push_back(num);
             index=i;
             read.clear();
         }
@@ -354,10 +357,6 @@ int Matrix::rank() const {
             k++;
         }
     }
-    if(tri.data[4][2]==0){
-        cout<<"hi";
-    }
-    else cout<<"no";
     return ans;
 }
 Matrix Matrix::inv() const {
