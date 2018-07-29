@@ -610,8 +610,8 @@ bool check_exp(string exp) {
 void process(string command) {
     for(int index=0; command[index]!='\0'; index++) {
         if(command[index]=='=') {
-            string name = command.substr(0,index);
-            string exp = command.substr(index+1,sizeof(command)/sizeof(command[0])-index);
+            string name = command.substr(0, index);
+            string exp = command.substr(index+1, command.size()-index);
             if(check_exp(exp)&&check_name(name)) {
                 Matrix ans = calc(exp);
                 ans.setName(name);
