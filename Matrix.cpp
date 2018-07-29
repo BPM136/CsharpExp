@@ -52,8 +52,11 @@ public:
     int col() const {
         return this->row() == 0 ? 0 : data[0].size();
     }
-    void setName(const string& name) {
+    void setname(const string& name) {
         this->name = name;
+    }
+    string getname() {
+        return this->name;
     }
 
     int rank() const; //计算秩
@@ -424,33 +427,41 @@ Matrix Matrix::power(int exp) const {
     else if(exp==1) {
         return ans;
     }
-    // else return ans*ans.power(exp-1);
-    // 如果用快速幂
-    else if(exp==2) {
-        return ans*ans;
-    }
-    else {
-        if(exp%2==0) {
-            return ans.power(exp/2).power(2);
-        }
-        else return ans.power((exp-1)/2).power(2)*ans;
-    }
 
-//    else {
-//        exp--;
-//        while(exp) {
-//            if(exp & 1) {
-//                ans = cpy * ans;
-//            }
-//            cpy = cpy * cpy;
-//            exp >>= 1;
-//        }
-//        return ans;
+//    else return ans*ans.power(exp-1); //递归
+
+//    else if(exp==2) {
+//        return ans*ans;
 //    }
+//    else {
+//        if(exp%2==0) {
+//            return ans.power(exp/2).power(2);
+//        }
+//        else return ans.power((exp-1)/2).power(2)*ans;
+//    } //快速幂(递归)
+
+    else {
+        exp--;
+        while(exp) {
+            if(exp & 1) {
+                ans = cpy * ans;
+            }
+            cpy = cpy * cpy;
+            exp >>= 1;
+        }
+        return ans;
+    } //快速幂(无递归)
 }
 
-unsigned short int Matrix::ACCU = 2;
+void help_info(void);
+unsigned short int change_accu(unsigned short int);
+void process(string);
+bool check_name(string); //检查等号左侧变量名是否有非法字符
+bool check_exp(string); //检查等号右侧表达式是否有非法字符
+Matrix calc(string); //返回表达式计算得到的矩阵
 
+unsigned short int Matrix::ACCU = 2;
+vector<Matrix> matdata;
 // ====================== Global Variable
 
 
@@ -458,19 +469,19 @@ unsigned short int Matrix::ACCU = 2;
 
 // ====================== Main Function
 int main() {
-    // Debug
-    string n = "testName";
-    Matrix a("[1, 1.1, 1.3; 1.2, 1.2, -1; 1.1, 0, 1.3]", n);
-    clock_t start, end;
-    start = clock();
-    for(int i=0;i<1000;i++){
-        system("cls");
-        a.power(1000);
-    }
-    cout << a.power(2);
-    end = clock();
-    printf("Power: %ld(clock or ms), 1000 times a.power(10000000)", end - start);
-    // 使用 .det() 请使用这种形式
+//    Debug
+//    string n = "testName";
+//    Matrix a("[1, 1.1, 1.3; 1.2, 1.2, -1; 1.1, 0, 1.3]", n);
+//    clock_t start, end;
+//    start = clock();
+//    for(int i=0;i<1000;i++){
+//        system("cls");
+//        a.power(1000);
+//    }
+//    cout << a.power(2);
+//    end = clock();
+//    printf("Power: %ld(clock or ms), 1000 times a.power(10000000)", end - start);
+//     使用 .det() 请使用这种形式
 //    try {
 //        cout << a.det() << endl;
 //    } catch (int) {
@@ -480,6 +491,19 @@ int main() {
     // + - * / ^ det rank adj
     // 函数型(det, rank, adj)会优先完成计算并将其结果返回至原表达式中
 
+    cout<<"欢迎使用矩阵计算器！";
+    help_info();
+    string command;
+    while(1) {
+        cin>>command;
+        if(command=="quit") {
+            return 0;
+        }
+        else if(command=="accuracy") {
+            Matrix::ACCU=change_accu(Matrix::ACCU);
+        }
+        else process(command);
+    }
 }
 
 // ====================== Process Function
@@ -494,55 +518,94 @@ void listVariable() {
 
 }
 
-//
-//    cout<<"欢迎使用矩阵计算器！";
-//    help_info();
-//    unsigned short int accuracy;
-//    vector<mat> matdata;
-//    string command;
-//    while(1){
-//        cin>>command;
-//        if(command=="quit"){
-//            return 0;
-//        }
-//        else if(command=="accuracy"){
-//            accuracy=change_accu(accuracy);
-//        }
-//        else process(command,matdata,accuracy);
-//    }
+void help_info(void) {
+    cout << "使用方法：" << endl;
+    cout << "1.输入矩阵：输入矩阵需要按照格式[X1,X2,X3;X4,X5,X6]的格式进行输入，分号“;“代表换行，中括号“[“，“]“代表矩阵的开始和结束，Xi为常数。" << endl;
+    cout << "                   X1 X2 X3" << endl;
+    cout << "若如此，将得到矩阵 X4 X5 X6" << endl;
+    cout << "2.赋值：输入“a=[X1,X2,X3;X4,X5,X6]“即记a为矩阵[X1,X2,X3;X4,X5,X6]。对于每一个等式，将等号右侧的矩阵运算结果赋值给左侧变量。变量的名称只能取大小写字母,并且不能为rank,det,quit等功能性字符串。"<<endl;
+    cout << "3.运算：合法的运算符包括“(“(左括号),“)“(右括号),“+“(加),“-“(减),“*“(乘),“^“(幂)“,“det()“(取行列式),“rank()“(取秩),“adj()“(取伴随矩阵),“^-1“(取逆),取行列式与取秩的优先级仅次于括号，并且与其右侧矩阵运算。其他一般运算符优先级照常。"<<endl;
+    cout << "4.使用举例：如输入 a=[2,3;1,4]" << endl;
+    cout << "                   b=[2,5;1,7]" << endl;
+    cout << "                   a*rank(b)" << endl;
+    cout << "将得到矩阵:   4 6" << endl;
+    cout << "              2 8" << endl;
+    cout << "如果想要更改显示精度，请输入accuracy" << endl;
+    cout << "如果想要退出，请输入“quit“。" << endl;
+}
 
+unsigned short int change_accu(unsigned short int accuracy) {
+    unsigned short int new_accu;
+    cout << "当前精度是" << accuracy << endl;
+    cout << "精度代表输出结果保留的小数点位数，精度为0代表输出整数结果：" << endl;
+    cout << "请输入新的精度，输入“-1“不进行改变：";
+    cin >> new_accu;
+    if(new_accu==(unsigned short int)-1) {
+        return accuracy;
+    }
+    else if(new_accu>10) {
+        cout << "精度大于10，将精度设为最大精度10。";
+        return 10;
+    }
+    else return new_accu;
+}
 
-//void help_info(void){
-//    cout<<"使用方法："<<endl;
-//    cout<<"1.输入矩阵：输入矩阵需要按照格式[X1,X2,X3;X4,X5,X6]的格式进行输入，分号“;“代表换行，中括号“[“，“]“代表矩阵的开始和结束，Xi为常数。"<<endl;
-//    cout<<"                   X1 X2 X3"<<endl;
-//    cout<<"若如此，将得到矩阵 X4 X5 X6"<<endl;
-//    cout<<"2.赋值：输入“a=[X1,X2,X3;X4,X5,X6]“即记a为矩阵[X1,X2,X3;X4,X5,X6]。对于每一个等式，将等号右侧的矩阵运算结果赋值给左侧变量。变量的名称只能取大小写字母,并且不能为rank,det,quit等功能性字符串。"<<endl;
-//    cout<<"3.运算：合法的运算符包括“(“(左括号),“)“(右括号),“+“(加),“-“(减),“*“(乘),“^“(幂)“,“det()“(取行列式),“rank()“(取秩),“adj()“(取伴随矩阵),“^-1“(取逆),取行列式与取秩的优先级仅次于括号，并且与其右侧矩阵运算。其他一般运算符优先级照常。"<<endl;
-//    cout<<"4.使用举例：如输入 a=[2,3;1,4]"<<endl;
-//    cout<<"                   b=[2,5;1,7]"<<endl;
-//    cout<<"                   a*rank(b)"<<endl;
-//    cout<<"将得到矩阵:   4 6"<<endl;
-//    cout<<"              2 8"<<endl;
-//    cout<<"如果想要更改显示精度，请输入accuracy"<<endl;
-//    cout<<"如果想要退出，请输入“quit“。"<<endl;
-//}
-//
-//unsigned short int change_accu(unsigned short int accuracy){
-//    unsigned short int new_accu;
-//    cout<<"当前精度是"<<accuracy<<endl;
-//    cout<<"精度代表输出结果保留的小数点位数，精度为0代表输出整数结果："<<endl;
-//    cout<<"请输入新的精度，输入“-1“不进行改变：";
-//    cin>>new_accu;
-//    if(new_accu==(unsigned short int)-1){
-//        return accuracy;
-//    }
-//    else if(new_accu>16){
-//        cout<<"精度大于16，超出double类型的精度，自动将精度设为16。";
-//        return 16;
-//    }
-//    else return new_accu;
-//}
+bool check_name(string name) {
+    for(int index=0; name[index]!='\0'; index++) {
+        if(isalpha(name[index])||name[index]=='_') {
+            continue;
+        }
+        return false;
+    }
+    return true;
+} //检查变量名是否有非法字符
+
+bool check_exp(string exp) {
+    for(int index=0; exp[index]!='\0'; index++) {
+        if(isalnum(exp[index])||exp[index]=='['||exp[index]==']'||exp[index]=='('||exp[index]==')'||exp[index]=='+'
+        ||exp[index]=='-'||exp[index]=='*'||exp[index]=='^'||exp[index]==','||exp[index]==';'||exp[index]=='/'||exp[index]==' '){
+            continue;
+        }
+        return false;
+    }
+    return true;
+} //检查等号右侧表达式是否有非法字符
+
+void process(string command) {
+    for(int index=0; command[index]!='\0'; index++) {
+        if(command[index]=='=') {
+            string name = command.substr(0,index);
+            string exp = command.substr(index+1,sizeof(command)/sizeof(command[0])-index);
+            if(check_exp(exp)&&check_name(name)) {
+                Matrix ans = calc(exp);
+                ans.setname(name);
+                matdata.push_back(ans);
+                vector<Matrix>::iterator it=matdata.begin();
+                for(; it!=matdata.end(); it++) {
+                    if(it->getname()=="name") {
+                        matdata.erase(it);
+                        break;
+                    }
+                }
+                return;
+            }
+            else {
+                cout << "输入的表达式非法！请重新输入：" << endl;
+                return;
+            }
+        }
+    }
+    if(check_exp(command)==0){
+        cout << "输入的表达式非法！请重新输入：" << endl;
+        return;
+    }
+    else cout << calc(command);
+    return;
+}
+
+Matrix calc(string exp) {
+
+}
 
 //void show_mat(vector<vector<double> > matrix,unsigned short int accu){
 //    vector<vector<double> >::iterator it1;
@@ -746,35 +809,3 @@ void listVariable() {
 //    return it;
 //}
 //
-//bool check(string exp){
-//    for(int index=0;exp[index]!='\0';index++){
-//        if(isalnum(exp[index])||exp[index]=='['||exp[index]==']'||exp[index]=='('||exp[index]==')'||exp[index]=='+'||exp[index]=='-'||exp[index]=='*'||exp[index]=='^'||exp[index]==','||exp[index]==';'){
-//            continue;
-//        }
-//        return 0;
-//    }
-//    return 1;
-//}
-//
-//bool check_name(string exp){
-//    for(int index=0;exp[index]!='\0';index++){
-//        if(isalpha(exp[index])||exp[index]=='_'){
-//            continue;
-//        }
-//        return 0;
-//    }
-//    return 1;
-//}
-//
-//vector<vector<double> > cal_adj(vector<vector<double> > mat){
-//
-//}
-//
-//vector<vector<double> > cal_det(vector<vector<double> > mat){
-//
-//}
-//
-//vector<vector<double> > cal_rank(vector<vector<double> >mat){
-//
-//}
-
