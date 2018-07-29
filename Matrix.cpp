@@ -9,13 +9,11 @@
 #include <algorithm>
 #include <cstring>
 #include <sstream>
+#include <ctime>
 
 using namespace std;
 
-//struct mat{
-//    vector<vector<double> > matrix;
-//string name;
-//};
+// ====================== Class
 
 class Matrix {
 private:
@@ -112,13 +110,11 @@ Matrix::Matrix(const string& str, const string& name = "") {
     errorFlag = isMatrix() ? 0 : 1;
 
 } // 可用, 无检查
-
 Matrix::Matrix(const Matrix& other) {
     data = other.data;
     name = other.name;
     errorFlag = other.errorFlag;
 }
-
 istream& operator>> (istream& in, Matrix& item) {
     string buf;
     getline(in, buf);
@@ -126,7 +122,6 @@ istream& operator>> (istream& in, Matrix& item) {
     item = Matrix(buf, item.name);
     return in;
 } // 可用, 无检查
-
 ostream& operator<< (ostream& out, const Matrix& item) {
     if(item.errorFlag != 0) {
         out << "You fucking try to output a piece of shit!" << endl;
@@ -156,7 +151,6 @@ ostream& operator<< (ostream& out, const Matrix& item) {
     }
     return out;
 }
-
 bool Matrix::isMatrix() const {
     int col = data[0].size();
     for(int i=0; i<data.size(); i++){
@@ -167,7 +161,6 @@ bool Matrix::isMatrix() const {
     }
     return true;
 }
-
 Matrix Matrix::operator+(const Matrix& right) const {
     Matrix ans;
     if(this->errorFlag!=0 || right.errorFlag!=0){
@@ -190,7 +183,6 @@ Matrix Matrix::operator+(const Matrix& right) const {
         return ans;
     }
 }
-
 Matrix Matrix::operator-(const Matrix& right) const {
     Matrix ans;
     if(this->errorFlag!=0 || right.errorFlag!=0){
@@ -213,7 +205,6 @@ Matrix Matrix::operator-(const Matrix& right) const {
         return ans;
     }
 }
-
 Matrix Matrix::operator*(const Matrix& right) const {
     Matrix ans;
     if(this->col()!=right.row()) {
@@ -235,7 +226,6 @@ Matrix Matrix::operator*(const Matrix& right) const {
     }
     return ans;
 }
-
 Matrix Matrix::operator*(const double& right) const {
     Matrix ans =* this;
     for(int i=0; i<ans.row(); i++) {
@@ -245,7 +235,6 @@ Matrix Matrix::operator*(const double& right) const {
     }
     return ans;
 }
-
 Matrix operator*(const double& left, const Matrix& right) {
     Matrix ans = right;
     for(int i=0; i<ans.row(); i++) {
@@ -255,7 +244,6 @@ Matrix operator*(const double& left, const Matrix& right) {
     }
     return ans;
 }
-
 Matrix Matrix::operator/(const double& right) const {
     Matrix ans=*this;
     for(int i=0; i<ans.row(); i++) {
@@ -265,7 +253,6 @@ Matrix Matrix::operator/(const double& right) const {
     }
     return ans;
 }
-
 double Matrix::det() const {
     Matrix tri = *this;
     if(this->row()!=this->col()) {
@@ -303,7 +290,6 @@ double Matrix::det() const {
     } //计算tri的行列式
     return ans;
 }
-
 int Matrix::rank() const {
     Matrix tri = *this;
     int ans=0;
@@ -355,7 +341,6 @@ int Matrix::rank() const {
     else cout<<"no";
     return ans;
 }
-
 Matrix Matrix::inv() const {
     Matrix copy = *this;
     if(this->row()!=this->col()) {
@@ -415,7 +400,6 @@ Matrix Matrix::inv() const {
     }
     return ans;
 }
-
 Matrix Matrix::adj() const {
     Matrix ans = *this;
     if(this->row()!=this->col()) {
@@ -424,9 +408,8 @@ Matrix Matrix::adj() const {
     }
     return ans.inv()*ans.det();
 }
-
 Matrix Matrix::power(int exp) const {
-    Matrix ans = *this;
+    Matrix ans = *this, cpy = *this;
     if(this->row()!=this->col()) {
         ans.errorFlag=2;
         return ans;
@@ -441,8 +424,8 @@ Matrix Matrix::power(int exp) const {
     else if(exp==1) {
         return ans;
     }
-    else return ans*ans(exp-1);
-    /* 如果用快速幂
+    // else return ans*ans.power(exp-1);
+    // 如果用快速幂
     else if(exp==2) {
         return ans*ans;
     }
@@ -452,27 +435,63 @@ Matrix Matrix::power(int exp) const {
         }
         else return ans.power((exp-1)/2).power(2)*ans;
     }
-    */
+
+//    else {
+//        exp--;
+//        while(exp) {
+//            if(exp & 1) {
+//                ans = cpy * ans;
+//            }
+//            cpy = cpy * cpy;
+//            exp >>= 1;
+//        }
+//        return ans;
+//    }
 }
 
 unsigned short int Matrix::ACCU = 2;
 
+// ====================== Global Variable
+
+
+
+
+// ====================== Main Function
 int main() {
     // Debug
     string n = "testName";
     Matrix a("[1, 1.1, 1.3; 1.2, 1.2, -1; 1.1, 0, 1.3]", n);
-    for(int i=0;i<10000;i++){
+    clock_t start, end;
+    start = clock();
+    for(int i=0;i<1000;i++){
         system("cls");
-        cout << a.power(100);
-        cout << i;
+        a.power(1000);
     }
+    cout << a.power(2);
+    end = clock();
+    printf("Power: %ld(clock or ms), 1000 times a.power(10000000)", end - start);
     // 使用 .det() 请使用这种形式
-    try {
-        cout << a.det() << endl;
-    } catch (int) {
-        cout << "非方阵不可求行列式" << endl;
-    }
-    getch();
+//    try {
+//        cout << a.det() << endl;
+//    } catch (int) {
+//        cout << "非方阵不可求行列式" << endl;
+//    }
+
+    // + - * / ^ det rank adj
+    // 函数型(det, rank, adj)会优先完成计算并将其结果返回至原表达式中
+
+}
+
+// ====================== Process Function
+
+//  expr:
+//      var = ans + [1, 2; 4, 2] * rank(ans + [5, 2; 4, 6]) / 3 + [1, 4; 4, 1] ^ 3 + inv(rank(ans))
+void toRPN(string expr) {
+
+}
+
+void listVariable() {
+
 }
 
 //
@@ -758,3 +777,4 @@ int main() {
 //vector<vector<double> > cal_rank(vector<vector<double> >mat){
 //
 //}
+
