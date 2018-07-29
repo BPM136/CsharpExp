@@ -10,27 +10,37 @@
 #include <cstring>
 #include <sstream>
 #include <ctime>
+#include <stack>
+#include <utility>
+#include <cmath>
 
 using namespace std;
 
 // ====================== Class
 
+class MatrixException : public std::exception {
+public:
+    string message;
+    int type;
+    /*
+     * 1: 不是矩阵
+     * 2: 非法运算
+     * */
+
+    MatrixException():message(""), type(0) {}
+    MatrixException(const string msg, const int typ):message(msg), type(typ) {}
+
+};
+
 class Matrix {
 private:
     vector<vector<double> > data;
     string name;
-    unsigned short int errorFlag;
-    /*
-     * 0: 正常
-     * 1: 不是矩阵
-     * 2: 非法运算
-     * */
 
 public:
     Matrix() {
         data = vector<vector<double> >();    //0*0的矩阵
         name = "";
-        errorFlag = 0;
     }                                       //初始化
     Matrix(const string& str, const string& name);
     Matrix(const Matrix& other);
@@ -52,10 +62,10 @@ public:
     int col() const {
         return this->row() == 0 ? 0 : data[0].size();
     }
-    void setname(const string& name) {
+    void setName(const string& name) {
         this->name = name;
     }
-    string getname() {
+    string getName() {
         return this->name;
     }
 
@@ -110,25 +120,31 @@ Matrix::Matrix(const string& str, const string& name = "") {
         }
     }
     this->name = name;
-    errorFlag = isMatrix() ? 0 : 1;
+//    if(!isMatrix()) {
+//        throw MatrixException(" === MatrixError: Not a Matrix(Wrong Input from Code) === ", 1);
+//    }
 
 } // 可用, 无检查
 Matrix::Matrix(const Matrix& other) {
     data = other.data;
     name = other.name;
-    errorFlag = other.errorFlag;
 }
 istream& operator>> (istream& in, Matrix& item) {
     string buf;
     getline(in, buf);
     item.data.clear();
-    item = Matrix(buf, item.name);
-    return in;
-} // 可用, 无检查
-ostream& operator<< (ostream& out, const Matrix& item) {
-    if(item.errorFlag != 0) {
-        out << "You fucking try to output a piece of shit!" << endl;
+    try {
+        item = Matrix(buf, item.name);
+    } catch(MatrixException& e) {
+        throw MatrixException(" === MatrixError: Not a Matrix(Wrong Input from Keyboard) === ", 1);
     }
+
+    return in;
+}
+ostream& operator<< (ostream& out, const Matrix& item) {
+//    if(item.errorFlag != 0) {
+//        out << "You fucking try to output a piece of shit!" << endl;
+//    }
 
     // 对齐
     int maxnum=0,num;
@@ -166,13 +182,12 @@ bool Matrix::isMatrix() const {
 }
 Matrix Matrix::operator+(const Matrix& right) const {
     Matrix ans;
-    if(this->errorFlag!=0 || right.errorFlag!=0){
-        ans.errorFlag = 1;
-        return ans;
-    }
-    else if(this->row()!=right.row() || this->col()!=right.col()) {
-        ans.errorFlag = 2;
-        return ans;
+//    if(this->errorFlag!=0 || right.errorFlag!=0){
+//        ans.errorFlag = 1;
+//        return ans;
+//    }
+    if(this->row()!=right.row() || this->col()!=right.col()) {
+        throw MatrixException(" === MatrixError: Left matrix and Right matrix is not Homotypic(in operator+) === ", 2);
     }
     else {
         vector<double> newline;
@@ -188,13 +203,12 @@ Matrix Matrix::operator+(const Matrix& right) const {
 }
 Matrix Matrix::operator-(const Matrix& right) const {
     Matrix ans;
-    if(this->errorFlag!=0 || right.errorFlag!=0){
-        ans.errorFlag = 1;
-        return ans;
-    }
-    else if(this->row()!=right.row() || this->col()!=right.col()) {
-        ans.errorFlag = 2;
-        return ans;
+//    if(this->errorFlag!=0 || right.errorFlag!=0){
+//        ans.errorFlag = 1;
+//        return ans;
+//    }
+    if(this->row()!=right.row() || this->col()!=right.col()) {
+        throw MatrixException(" === MatrixError: Left matrix and Right matrix is not Homotypic(in operator-) === ", 2);
     }
     else {
         vector<double> newline;
@@ -211,8 +225,7 @@ Matrix Matrix::operator-(const Matrix& right) const {
 Matrix Matrix::operator*(const Matrix& right) const {
     Matrix ans;
     if(this->col()!=right.row()) {
-       ans.errorFlag = 2;
-       return ans;
+       throw MatrixException(" === MatrixError: The column of Left matrix is not equal to the row of Right matrix(in operator*) === ", 2);
     }
     vector<double> newline;
     double sum;
@@ -248,6 +261,9 @@ Matrix operator*(const double& left, const Matrix& right) {
     return ans;
 }
 Matrix Matrix::operator/(const double& right) const {
+    if(fabs(right) <= 10e-8) {
+        throw MatrixException(" === MatrixError: Divided by Zero(in operator/ with a number) === ", 2);
+    }
     Matrix ans=*this;
     for(int i=0; i<ans.row(); i++) {
         for (int j=0; j<ans.col(); j++) {
@@ -259,7 +275,7 @@ Matrix Matrix::operator/(const double& right) const {
 double Matrix::det() const {
     Matrix tri = *this;
     if(this->row()!=this->col()) {
-        throw 0; // 外层 try-catch, 请
+        throw MatrixException(" === MatrixError: Not a Square Matrix(in Function det) === ", 2);
     }
     int order=this->row();
     double ans=1;
@@ -347,8 +363,7 @@ int Matrix::rank() const {
 Matrix Matrix::inv() const {
     Matrix copy = *this;
     if(this->row()!=this->col()) {
-        copy.errorFlag=2;
-        return copy;
+        throw MatrixException(" === MatrixError: Not a Square Matrix(in Function det) === ", 2);
     }
     Matrix ans;
     ans.data = vector<vector<double> >(row(), vector<double>(col(), 0));
@@ -364,8 +379,7 @@ Matrix Matrix::inv() const {
                 k++;
             }
             if(k==order) {
-                copy.errorFlag=2;
-                return copy; //非满秩矩阵不可求逆
+                throw MatrixException("Not a Full Rank Matrix(in Function rank)", 2);
             }
             else {
                 double cache;
@@ -406,15 +420,14 @@ Matrix Matrix::inv() const {
 Matrix Matrix::adj() const {
     Matrix ans = *this;
     if(this->row()!=this->col()) {
-        ans.errorFlag=2;
-        return ans;
+        throw MatrixException(" === MatrixError: Not a Square Matrix(in Function adj) === ", 2);
     }
     return ans.inv()*ans.det();
 }
 Matrix Matrix::power(int exp) const {
     Matrix ans = *this, cpy = *this;
     if(this->row()!=this->col()) {
-        ans.errorFlag=2;
+        throw MatrixException(" === MatrixError: Not a Square Matrix(in Function power) === ", 2);
         return ans;
     }
     if(exp<0) {
@@ -469,6 +482,30 @@ vector<Matrix> matdata;
 
 // ====================== Main Function
 int main() {
+    // Debug
+    string n = "testName";
+    Matrix a("[1, 1.1, 1.3; 1.2, 1.2, -1; 1.1, 0, 1.3]", n);
+    cout << a;
+//    try {
+//        cin >> a;
+//        cout << a;
+//    } catch(MatrixException& e) {
+//        cout << e.message << endl;
+//        return 0;
+//    }
+
+    getch();
+
+//    clock_t start, end;
+//    start = clock();
+//    for(int i=0;i<1000;i++){
+//        system("cls");
+//        a.power(1000);
+//    }
+//    cout << a.power(2);
+//    end = clock();
+//    printf("Power: %ld(clock or ms), 1000 times a.power(10000000)", end - start);
+    // 使用 .det() 请使用这种形式
 //    Debug
 //    string n = "testName";
 //    Matrix a("[1, 1.1, 1.3; 1.2, 1.2, -1; 1.1, 0, 1.3]", n);
@@ -488,7 +525,7 @@ int main() {
 //        cout << "非方阵不可求行列式" << endl;
 //    }
 
-    // + - * / ^ det rank adj
+    // + - * / ^ det rank adj -(负)
     // 函数型(det, rank, adj)会优先完成计算并将其结果返回至原表达式中
 
     cout<<"欢迎使用矩阵计算器！";
@@ -578,11 +615,11 @@ void process(string command) {
             string exp = command.substr(index+1,sizeof(command)/sizeof(command[0])-index);
             if(check_exp(exp)&&check_name(name)) {
                 Matrix ans = calc(exp);
-                ans.setname(name);
+                ans.setName(name);
                 matdata.push_back(ans);
                 vector<Matrix>::iterator it=matdata.begin();
                 for(; it!=matdata.end(); it++) {
-                    if(it->getname()=="name") {
+                    if(it->getName()=="name") {
                         matdata.erase(it);
                         break;
                     }
