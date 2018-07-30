@@ -3,7 +3,7 @@
 #include <string>
 #include <fstream>
 #include <iomanip>
-#include <ctype.h>
+#include <cctype>
 #include <vector>
 #include <conio.h>
 #include <algorithm>
@@ -13,6 +13,7 @@
 #include <stack>
 #include <utility>
 #include <cmath>
+#include <stack>
 
 using namespace std;
 
@@ -471,6 +472,8 @@ void process(string);
 bool check_name(string); //检查等号左侧变量名是否有非法字符
 bool check_exp(string); //检查等号右侧表达式是否有非法字符
 Matrix calc(string); //返回表达式计算得到的矩阵
+string rev_polish(string); //表达式转化为逆波兰表达式
+unsigned short int priority(char); //返回运算符的优先级
 
 unsigned short int Matrix::ACCU = 2;
 vector<Matrix> matdata;
@@ -482,9 +485,9 @@ vector<Matrix> matdata;
 // ====================== Main Function
 int main() {
     // Debug
-    string n = "testName";
-    Matrix a("[1, 1.1, 1.3; 1.2, 1.2, -1; 1.1, 0, 1.3]", n);
-    cout << a;
+//    string n = "testName";
+//    Matrix a("[1, 1.1, 1.3; 1.2, 1.2, -1; 1.1, 0, 1.3]", n);
+//    cout << a;
 //    try {
 //        cin >> a;
 //        cout << a;
@@ -492,7 +495,8 @@ int main() {
 //        cout << e.message << endl;
 //        return 0;
 //    }
-
+    string exp="a+d*(b-[1,2,23;4,2,2])";
+    cout<<rev_polish(exp);
     getch();
 
 //    clock_t start, end;
@@ -527,19 +531,19 @@ int main() {
     // + - * / ^ det rank adj -(负)
     // 函数型(det, rank, adj)会优先完成计算并将其结果返回至原表达式中
 
-    cout<<"欢迎使用矩阵计算器！";
-    help_info();
-    string command;
-    while(1) {
-        cin>>command;
-        if(command=="quit") {
-            return 0;
-        }
-        else if(command=="accuracy") {
-            Matrix::ACCU=change_accu(Matrix::ACCU);
-        }
-        else process(command);
-    }
+//    cout<<"欢迎使用矩阵计算器！";
+//    help_info();
+//    string command;
+//    while(1) {
+//        cin>>command;
+//        if(command=="quit") {
+//            return 0;
+//        }
+//        else if(command=="accuracy") {
+//            Matrix::ACCU=change_accu(Matrix::ACCU);
+//        }
+//        else process(command);
+//    }
 }
 
 // ====================== Process Function
@@ -640,7 +644,200 @@ void process(string command) {
 }
 
 Matrix calc(string exp) {
+    int index;  //下标
+    int brac_l,brac_r,brac_num,brac_index;   //括号
+    for(index=0;exp[index]!='\0';index++) {
 
+        if (exp.substr(index, 5) == "rank(") {
+            brac_l = index + 4;
+            brac_num = 1;
+            for (brac_index = index + 5; exp[brac_index] != '\0'; brac_index++) {
+                if (exp[brac_index] == '(') { brac_num++; }
+                else if (exp[brac_index] == ')') { brac_num--; }
+                if (brac_num == 0) {
+                    brac_r = brac_index;
+                    break;
+                }
+            }
+            if (exp[brac_index] == '\0') {
+                cout << "输入的表达式非法！请重新输入：";
+                //需要错误处理
+            } else {
+                stringstream replace_num;
+                replace_num<<calc(exp.substr(brac_l+1,brac_r-brac_l-1)).rank();
+                string fin_exp=exp.substr(0,index)+replace_num.str()+exp.substr(brac_r+1,exp.size()-brac_r);
+                return calc(fin_exp);
+            }
+        }
+
+        if (exp.substr(index, 4) == "adj(") {
+            brac_l = index + 3;
+            brac_num = 1;
+            for (brac_index = index + 4; exp[brac_index] != '\0'; brac_index++) {
+                if (exp[brac_index] == '(') { brac_num++; }
+                else if (exp[brac_index] == ')') { brac_num--; }
+                if (brac_num == 0) {
+                    brac_r = brac_index;
+                    break;
+                }
+            }
+            if (exp[brac_index] == '\0') {
+                cout << "输入的表达式非法！请重新输入：";
+                //需要错误处理
+            } else {
+                string new_name;
+                char replace_name;
+                int i=0;
+                while(1) {
+                    replace_name='a'+i;
+                    new_name="_"+replace_name;
+                    vector<Matrix>::iterator it=matdata.begin();
+                    for(; it!=matdata.end(); it++) {
+                        if(it->getName() == new_name) {
+                            break;
+                        }
+                    }
+                    if(it==matdata.end()) {
+                        break;
+                    }
+                    else {
+                        i++;
+                        continue;
+                    }
+                }
+                string fin_exp=exp.substr(0,index)+new_name+exp.substr(brac_r+1,exp.size()-brac_r);
+                Matrix new_mat=calc(exp.substr(brac_l+1,brac_r-brac_l-1)).adj();
+                new_mat.setName(new_name);
+                return calc(fin_exp);
+            }
+        }
+
+        if (exp.substr(index, 4) == "det(") {
+            brac_l = index + 3;
+            brac_num = 1;
+            for (brac_index = index + 4; exp[brac_index] != '\0'; brac_index++) {
+                if (exp[brac_index] == '(') { brac_num++; }
+                else if (exp[brac_index] == ')') { brac_num--; }
+                if (brac_num == 0) {
+                    brac_r = brac_index;
+                    break;
+                }
+            }
+            if (exp[brac_index] == '\0') {
+                cout << "输入的表达式非法！请重新输入：";
+                //需要错误处理
+            } else {
+                stringstream replace_num;
+                replace_num<<calc(exp.substr(brac_l+1,brac_r-brac_l-1)).det();
+                string fin_exp=exp.substr(0,index)+replace_num.str()+exp.substr(brac_r+1,exp.size()-brac_r);
+                return calc(fin_exp);
+            }
+        }
+
+    }
+
+    exp = rev_polish(exp);
+}
+
+string rev_polish(string exp) {
+    string pol; //逆波兰输出
+    stack<char> ope; //操作符
+    for(int i=0; exp[i]!='\0'; i++) {
+        if(exp[i]=='-'&&i==0||exp[i]=='-'&&(exp[i-1]=='+'||exp[i-1]=='-'||exp[i-1]=='*'||exp[i-1]=='/'||exp[i-1]=='^'||exp[i-1]=='(')) {
+            exp[i]='#'; //将负号而不是减号换为#号
+        }
+    }
+    int i=0;
+    while(exp[i]!='\0') {
+        if(exp[i]==' ') {
+            i++;
+            continue;
+        }
+        else if(exp[i]=='#'&&exp[i+1]>='0'&&exp[i+1]<='9'||exp[i]>='0'&&exp[i]<='9') {
+            int index=i+1;
+            while(exp[index]>='0'&&exp[index]<='9'||exp[index]=='.') {
+                index++;
+            }
+            pol+=exp.substr(i,index-i);
+            pol+='\7';
+            i=index;
+            continue;
+        } //找到数字
+        else if(exp[i]=='#'&&exp[i+1]=='['||exp[i]=='[') {
+            int index=i+1;
+            while(exp[index]!=']') {
+                index++;
+            }
+            pol+=exp.substr(i,index-i+1);
+            pol+='\7';
+            i=index+1;
+            continue;
+        } //找到矩阵
+        else if(exp[i]=='#'&&(isalpha(exp[i+1])||exp[i+1]=='_')||isalpha(exp[i])||exp[i]=='_') {
+            int index=i+1;
+            while(isalpha(index)) {
+                index++;
+            }
+            pol+=exp.substr(i,index-i);
+            pol+='\7';
+            i=index;
+            continue;
+        } //找到变量
+        else if(exp[i]=='(') {
+            ope.push(exp[i]);
+            i++;
+            continue;
+        } //遇到左括号直接存入运算符栈
+        else if(exp[i]==')') {
+            while(ope.top()!='(') {
+                pol+=ope.top();
+                ope.pop();
+            }
+            ope.pop(); //丢掉左括号
+            i++;
+            continue;
+        } //遇到右括号一直输出直到遇到左括号
+        else if(exp[i]=='+'||exp[i]=='-'||exp[i]=='*'||exp[i]=='/'||exp[i]=='^') {
+            if(ope.empty()||ope.top()=='('||priority(exp[i])>priority(ope.top())) {
+                ope.push(exp[i]);
+            }
+            else {
+                while(!ope.empty()&&ope.top()!='('&&priority(ope.top())>=priority(exp[i])) {
+                    pol+=ope.top();
+                    ope.pop();
+                }
+                ope.push(exp[i]);
+            }
+            i++;
+            continue;
+        } //遇到非括号运算符
+        else {
+            //非法输入，错误处理
+            i++;
+            continue;
+        }
+    }
+    pol+='\7';
+    while (!ope.empty()) {
+        pol+=ope.top();
+        ope.pop();
+    }
+    return pol;
+}
+
+unsigned short int priority(char ope) {
+    if(ope=='^') {
+        return 2;
+    }
+    else if(ope=='*'||ope=='/') {
+        return 1;
+    }
+    else if(ope=='+'||ope=='-') {
+        return 0;
+    }
+    else {
+        //需要错误处理
+    }
 }
 
 //void show_mat(vector<vector<double> > matrix,unsigned short int accu){
