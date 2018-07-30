@@ -1,5 +1,5 @@
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <fstream>
 #include <iomanip>
@@ -14,6 +14,7 @@
 #include <utility>
 #include <cmath>
 #include <stack>
+#include <cstdlib>
 
 using namespace std;
 
@@ -495,10 +496,6 @@ int main() {
 //        cout << e.message << endl;
 //        return 0;
 //    }
-    string exp="a+d*(b-[1,2,23;4,2,2])";
-    cout<<rev_polish(exp);
-    getch();
-
 //    clock_t start, end;
 //    start = clock();
 //    for(int i=0;i<1000;i++){
@@ -531,25 +528,26 @@ int main() {
     // + - * / ^ det rank adj -(负)
     // 函数型(det, rank, adj)会优先完成计算并将其结果返回至原表达式中
 
-//    cout<<"欢迎使用矩阵计算器！";
-//    help_info();
-//    string command;
-//    while(1) {
-//        cin>>command;
-//        if(command=="quit") {
-//            return 0;
-//        }
-//        else if(command=="accuracy") {
-//            Matrix::ACCU=change_accu(Matrix::ACCU);
-//        }
-//        else process(command);
-//    }
+    cout<<"欢迎使用矩阵计算器！";
+    help_info();
+    string command;
+    while(1) {
+        cin>>command;
+        if(command=="quit") {
+            return 0;
+        }
+        else if(command=="accuracy") {
+            Matrix::ACCU=change_accu(Matrix::ACCU);
+        }
+        else process(command);
+    }
 }
 
 // ====================== Process Function
 
 //  expr:
 //      var = ans + [1, 2; 4, 2] * rank(ans + [5, 2; 4, 6]) / 3 + [1, 4; 4, 1] ^ 3 + inv(rank(ans))
+
 void toRPN(string expr) {
 
 }
@@ -735,8 +733,234 @@ Matrix calc(string exp) {
         }
 
     }
-
     exp = rev_polish(exp);
+    struct operand{
+        bool isNum; //如果储存的是数则为真，如果是矩阵则为假
+        Matrix mat;
+        double num;
+    }; //操作数结构体
+    stack<operand> datastk;
+    istringstream read;
+    int i=0;
+    while(exp[i]!='\0') {
+        if(exp[i]=='#'&&exp[i+1]>='0'&&exp[i+1]<='9') {
+            int index=i+1;
+            while(exp[index]>='0'&&exp[index]<='9'||exp[index]=='.') {
+                index++;
+            }
+            operand data;
+            data.isNum=1;
+            read.str(exp.substr(i+1,index-i-1));
+            read>>data.num;
+            data.num=-data.num;
+            datastk.push(data);
+            read.clear();
+            i=index;
+            continue;
+        } //带负号的数
+        else if(exp[i]>='0'&&exp[i]<='9') {
+            int index=i+1;
+            while(exp[index]>='0'&&exp[index]<='9'||exp[index]=='.') {
+                index++;
+            }
+            operand data;
+            data.isNum=1;
+            read.str(exp.substr(i,index-i));
+            read>>data.num;
+            datastk.push(data);
+            read.clear();
+            i=index;
+            continue;
+        } //不带负号的数
+        else if(exp[i]=='#'&&exp[i+1]=='[') {
+            int index=i+1;
+            while(exp[index]!=']') {
+                index++;
+            }
+            operand data;
+            data.isNum=0;
+            data.mat=Matrix(exp.substr(i+1,index-i),"");
+            data.mat=data.mat*(-1);
+            datastk.push(data);
+            read.clear();
+            i=index+1;
+            continue;
+        } //带负号的矩阵
+        else if(exp[i]=='[') {
+            int index=i+1;
+            while(exp[index]!=']') {
+                index++;
+            }
+            operand data;
+            data.isNum=0;
+            data.mat=Matrix(exp.substr(i,index-i+1),"");
+            datastk.push(data);
+            read.clear();
+            i=index+1;
+            continue;
+        } //不带负号的矩阵
+        else if(exp[i]=='#'&& (isalpha(exp[i+1])||exp[i+1]=='_') ) {
+            int index=i+1;
+            while(isalpha(exp[index])||exp[index]=='_') {
+                index++;
+            }
+            operand data;
+            data.isNum=0;
+            vector<Matrix>::iterator it=matdata.begin();
+            for(; it!=matdata.end(); it++) {
+                if(it->getName()==exp.substr(i+1,index-i-1)) {
+                    break;
+                }
+            }
+            if(it==matdata.end()) {
+                //错误处理：变量名未定义
+            }
+            data.mat=(*it)*(-1);
+            datastk.push(data);
+            read.clear();
+            i=index;
+            continue;
+        } //带负号的矩阵变量
+        else if(isalpha(exp[i])||exp[i]=='_') {
+            int index=i+1;
+            while(isalpha(exp[index])||exp[index]=='_') {
+                index++;
+            }
+            operand data;
+            data.isNum=0;
+            vector<Matrix>::iterator it=matdata.begin();
+            for(; it!=matdata.end(); it++) {
+                if(it->getName()==exp.substr(i,index-i)) {
+                    break;
+                }
+            }
+            if(it==matdata.end()) {
+                //错误处理：变量名未定义
+            }
+            data.mat=(*it)*(-1);
+            datastk.push(data);
+            read.clear();
+            i=index;
+            continue;
+        } //不带负号的矩阵变量
+          //完成对操作数的压入
+        else if(exp[i]=='+') {
+            operand data1=datastk.top();
+            datastk.pop();
+            operand data2=datastk.top();
+            datastk.pop();
+            operand result;
+            if(data1.isNum&&data2.isNum) {
+                result.isNum=1;
+                result.num=data1.num+data2.num;
+                datastk.push(result);
+            } //数字相加
+            else if(!data1.isNum&&!data2.isNum) {
+                result.isNum=0;
+                result.mat=data1.mat+data2.mat;
+                datastk.push(result);
+            } //矩阵相加
+            else {
+                //错误处理：数字和矩阵相加
+            }
+            i++;
+            continue;
+        }
+        else if(exp[i]=='-') {
+            operand data1=datastk.top();
+            datastk.pop();
+            operand data2=datastk.top();
+            datastk.pop();
+            operand result;
+            if(data1.isNum&&data2.isNum) {
+                result.isNum=1;
+                result.num=data2.num-data1.num;
+                datastk.push(result);
+            } //数字相减
+            else if(!data1.isNum&&!data2.isNum) {
+                result.isNum=0;
+                result.mat=data2.mat-data1.mat;
+                datastk.push(result);
+            } //矩阵相减
+            else {
+                //错误处理：数字和矩阵相加
+            }
+            i++;
+            continue;
+        }
+        else if(exp[i]=='*') {
+            operand data1=datastk.top();
+            datastk.pop();
+            operand data2=datastk.top();
+            datastk.pop();
+            operand result;
+            if(data1.isNum&&data2.isNum) {
+                result.isNum=1;
+                result.num=data1.num*data2.num;
+                datastk.push(result);
+            } //数字相乘
+            else if(!data1.isNum&&!data2.isNum) {
+                result.isNum=0;
+                result.mat=data1.mat*data2.mat;
+                datastk.push(result);
+            } //矩阵相乘
+            else {
+                result.isNum=0;
+                if(data1.isNum) {
+                    result.mat=data2.mat*data1.num;
+                }
+                else {
+                    result.mat=data1.mat*data2.num;
+                }
+                datastk.push(result);
+            }
+            i++;
+            continue;
+        }
+        else if(exp[i]=='/') {
+            operand data1=datastk.top();
+            datastk.pop();
+            operand data2=datastk.top();
+            datastk.pop();
+            operand result;
+            if(data1.isNum&&data2.isNum) {
+                result.isNum=1;
+                result.num=data2.num/data1.num;
+                datastk.push(result);
+            } //数字相除
+            else if(data1.isNum&&!data2.isNum) {
+                result.isNum=0;
+                result.mat=data2.mat/data1.num;
+                datastk.push(result);
+            } //矩阵数除
+            else {
+                //错误处理：矩阵相除或者数字除以矩阵
+            }
+            i++;
+            continue;
+        }
+        else if(exp[i]=='^') {
+            operand data1=datastk.top();
+            datastk.pop();
+            operand data2=datastk.top();
+            datastk.pop();
+            operand result;
+            if(data1.isNum&&!data2.isNum) {
+                result.isNum=0;
+                result.mat=data2.mat.power(data1.num);
+                datastk.push(result);
+            }
+            else {
+                //非法幂
+            }
+        }
+    }
+    if(datastk.size()!=1) {
+        //计算错误
+    }
+    else {
+        return datastk.top().mat;
+    }
 }
 
 string rev_polish(string exp) {
@@ -773,9 +997,9 @@ string rev_polish(string exp) {
             i=index+1;
             continue;
         } //找到矩阵
-        else if(exp[i]=='#'&&(isalpha(exp[i+1])||exp[i+1]=='_')||isalpha(exp[i])||exp[i]=='_') {
+        else if(exp[i]=='#'&& (isalpha(exp[i+1])||exp[i+1]=='_') ||isalpha(exp[i])||exp[i]=='_') {
             int index=i+1;
-            while(isalpha(index)) {
+            while(isalpha(exp[index])||exp[index]=='_') {
                 index++;
             }
             pol+=exp.substr(i,index-i);
@@ -817,7 +1041,6 @@ string rev_polish(string exp) {
             continue;
         }
     }
-    pol+='\7';
     while (!ope.empty()) {
         pol+=ope.top();
         ope.pop();
