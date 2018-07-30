@@ -62,7 +62,18 @@ public:
         return data.size();
     }
     int col() const {
-        return this->row() == 0 ? 0 : data[0].size();
+        if(data.size()==0) {
+            return 0;
+        }
+        else {
+            int ans=0;
+            for(int i=0; i<data.size(); i++) {
+                if(data[i].size()>ans) {
+                    ans=data[i].size();
+                }
+            }
+            return ans;
+        }
     }
     void setName(const string& name) {
         this->name = name;
@@ -549,7 +560,7 @@ int main() {
     while(1){
         cout<<"input expression->\n";
         string exp;
-        cin>>exp;
+        getline(cin,exp);
         process(exp);
         cout<<endl;
     }
@@ -621,7 +632,16 @@ bool check_exp(string exp) {
     return true;
 } //检查等号右侧表达式是否有非法字符
 
-void process(string command) {
+void process(string exp) {
+    string command;
+    for(int index=0; exp[index]!='\0'; index++) {
+        if(exp[index]==' ') {
+            continue;
+        }
+        else {
+            command+=exp[index];
+        }
+    }
     for(int index=0; command[index]!='\0'; index++) {
         if(command[index]=='=') {
             string name = command.substr(0, index);
