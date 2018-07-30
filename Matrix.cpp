@@ -529,7 +529,6 @@ int main() {
     // 函数型(det, rank, adj)会优先完成计算并将其结果返回至原表达式中
 
     cout<<"欢迎使用矩阵计算器！";
-    help_info();
     string command;
     while(1) {
         cin>>command;
@@ -953,10 +952,13 @@ Matrix calc(string exp) {
             else {
                 //非法幂
             }
+            i++;
+            continue;
         }
     }
     if(datastk.size()!=1) {
         //计算错误
+        return datastk.top().mat;
     }
     else {
         return datastk.top().mat;
