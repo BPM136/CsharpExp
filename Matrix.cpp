@@ -483,7 +483,7 @@ string rev_polish(string); //表达式转化为逆波兰表达式
 unsigned short int priority(char); //返回运算符的优先级
 
 unsigned short int Matrix::ACCU = 2;
-vector<Matrix> matdata;
+vector<operand> opedata;
 // ====================== Global Variable
 
 
@@ -629,14 +629,15 @@ void process(string command) {
             if(check_exp(exp)&&check_name(name)) {
                 operand ans1 = calc(exp);
                 ans1.mat.setName(name);
-                matdata.push_back(ans1.mat);
-                vector<Matrix>::iterator it=matdata.begin();
-                for(; it!=matdata.end(); it++) {
-                    if(it->getName()=="name") {
-                        matdata.erase(it);
+                opedata.push_back(ans1);
+                vector<operand>::iterator it=opedata.begin();
+                for(; it!=opedata.end(); it++) {
+                    if(it->mat.getName()=="name") {
+                        opedata.erase(it);
                         break;
                     }
                 }
+                cout << name << " = " << endl;
                 if(ans1.isNum==1) {
                     cout << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << ans1.num;
                 }
@@ -715,13 +716,13 @@ operand calc(string exp) {
                 while(1) {
                     replace_name='a'+i;
                     new_name="_"+replace_name;
-                    vector<Matrix>::iterator it=matdata.begin();
-                    for(; it!=matdata.end(); it++) {
-                        if(it->getName() == new_name) {
+                    vector<operand>::iterator it=opedata.begin();
+                    for(; it!=opedata.end(); it++) {
+                        if(it->mat.getName() == new_name) {
                             break;
                         }
                     }
-                    if(it==matdata.end()) {
+                    if(it==opedata.end()) {
                         break;
                     }
                     else {
@@ -826,44 +827,42 @@ operand calc(string exp) {
                 index++;
             }
             operand data;
-            data.isNum=0;
-            vector<Matrix>::iterator it=matdata.begin();
-            for(; it!=matdata.end(); it++) {
-                if(it->getName()==exp.substr(i+1,index-i-1)) {
+            vector<operand>::iterator it=opedata.begin();
+            for(; it!=opedata.end(); it++) {
+                if(it->mat.getName()==exp.substr(i+1,index-i-1)) {
                     break;
                 }
             }
-            if(it==matdata.end()) {
+            if(it==opedata.end()) {
                 //错误处理：变量名未定义
             }
-            data.mat=(*it)*(-1);
+            data=*it;
             datastk.push(data);
             read.clear();
             i=index+1;
             continue;
-        } //带负号的矩阵变量
+        } //带负号的变量
         else if(isalpha(exp[i])||exp[i]=='_') {
             int index=i+1;
             while(exp[index]!='\7') {
                 index++;
             }
             operand data;
-            data.isNum=0;
-            vector<Matrix>::iterator it=matdata.begin();
-            for(; it!=matdata.end(); it++) {
-                if(it->getName()==exp.substr(i,index-i)) {
+            vector<operand>::iterator it=opedata.begin();
+            for(; it!=opedata.end(); it++) {
+                if(it->mat.getName()==exp.substr(i,index-i)) {
                     break;
                 }
             }
-            if(it==matdata.end()) {
+            if(it==opedata.end()) {
                 //错误处理：变量名未定义
             }
-            data.mat=(*it)*(-1);
+            data=*it;
             datastk.push(data);
             read.clear();
             i=index+1;
             continue;
-        } //不带负号的矩阵变量
+        } //不带负号的变量
           //完成对操作数的压入
         else if(exp[i]=='+') {
             operand data1=datastk.top();
