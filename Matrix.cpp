@@ -467,12 +467,18 @@ Matrix Matrix::power(int exp) const {
     } //快速幂(无递归)
 }
 
+struct operand{
+    bool isNum; //如果储存的是数则为真，如果是矩阵则为假
+    Matrix mat;
+    double num;
+}; //操作数结构体
+
 void help_info(void);
 unsigned short int change_accu(unsigned short int);
 void process(string);
 bool check_name(string); //检查等号左侧变量名是否有非法字符
 bool check_exp(string); //检查等号右侧表达式是否有非法字符
-Matrix calc(string); //返回表达式计算得到的矩阵
+operand calc(string); //返回表达式计算得到的矩阵
 string rev_polish(string); //表达式转化为逆波兰表达式
 unsigned short int priority(char); //返回运算符的优先级
 
@@ -528,17 +534,24 @@ int main() {
     // + - * / ^ det rank adj -(负)
     // 函数型(det, rank, adj)会优先完成计算并将其结果返回至原表达式中
 
-    cout<<"欢迎使用矩阵计算器！";
-    string command;
-    while(1) {
-        cin>>command;
-        if(command=="quit") {
-            return 0;
-        }
-        else if(command=="accuracy") {
-            Matrix::ACCU=change_accu(Matrix::ACCU);
-        }
-        else process(command);
+//    cout<<"欢迎使用矩阵计算器！";
+//    string command;
+//    while(1) {
+//        cin>>command;
+//        if(command=="quit") {
+//            return 0;
+//        }
+//        else if(command=="accuracy") {
+//            Matrix::ACCU=change_accu(Matrix::ACCU);
+//        }
+//        else process(command);
+//    }
+    while(1){
+        cout<<"input expression->\n";
+        string exp;
+        cin>>exp;
+        process(exp);
+        cout<<endl;
     }
 }
 
@@ -614,15 +627,21 @@ void process(string command) {
             string name = command.substr(0, index);
             string exp = command.substr(index+1, command.size()-index);
             if(check_exp(exp)&&check_name(name)) {
-                Matrix ans = calc(exp);
-                ans.setName(name);
-                matdata.push_back(ans);
+                operand ans1 = calc(exp);
+                ans1.mat.setName(name);
+                matdata.push_back(ans1.mat);
                 vector<Matrix>::iterator it=matdata.begin();
                 for(; it!=matdata.end(); it++) {
                     if(it->getName()=="name") {
                         matdata.erase(it);
                         break;
                     }
+                }
+                if(ans1.isNum==1) {
+                    cout << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << ans1.num;
+                }
+                else {
+                    cout<<ans1.mat;
                 }
                 return;
             }
@@ -636,11 +655,19 @@ void process(string command) {
         cout << "输入的表达式非法！请重新输入：" << endl;
         return;
     }
-    else cout << calc(command);
+    else {
+        operand ans2=calc(command);
+        if(ans2.isNum==1) {
+            cout << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << ans2.num;
+        }
+        else {
+            cout<<ans2.mat;
+        }
+    };
     return;
 }
 
-Matrix calc(string exp) {
+operand calc(string exp) {
     int index;  //下标
     int brac_l,brac_r,brac_num,brac_index;   //括号
     for(index=0;exp[index]!='\0';index++) {
@@ -661,7 +688,7 @@ Matrix calc(string exp) {
                 //需要错误处理
             } else {
                 stringstream replace_num;
-                replace_num<<calc(exp.substr(brac_l+1,brac_r-brac_l-1)).rank();
+                replace_num<<calc(exp.substr(brac_l+1,brac_r-brac_l-1)).mat.rank();
                 string fin_exp=exp.substr(0,index)+replace_num.str()+exp.substr(brac_r+1,exp.size()-brac_r);
                 return calc(fin_exp);
             }
@@ -703,7 +730,7 @@ Matrix calc(string exp) {
                     }
                 }
                 string fin_exp=exp.substr(0,index)+new_name+exp.substr(brac_r+1,exp.size()-brac_r);
-                Matrix new_mat=calc(exp.substr(brac_l+1,brac_r-brac_l-1)).adj();
+                Matrix new_mat=calc(exp.substr(brac_l+1,brac_r-brac_l-1)).mat.adj();
                 new_mat.setName(new_name);
                 return calc(fin_exp);
             }
@@ -725,7 +752,7 @@ Matrix calc(string exp) {
                 //需要错误处理
             } else {
                 stringstream replace_num;
-                replace_num<<calc(exp.substr(brac_l+1,brac_r-brac_l-1)).det();
+                replace_num<<calc(exp.substr(brac_l+1,brac_r-brac_l-1)).mat.det();
                 string fin_exp=exp.substr(0,index)+replace_num.str()+exp.substr(brac_r+1,exp.size()-brac_r);
                 return calc(fin_exp);
             }
@@ -733,18 +760,13 @@ Matrix calc(string exp) {
 
     }
     exp = rev_polish(exp);
-    struct operand{
-        bool isNum; //如果储存的是数则为真，如果是矩阵则为假
-        Matrix mat;
-        double num;
-    }; //操作数结构体
     stack<operand> datastk;
     istringstream read;
     int i=0;
     while(exp[i]!='\0') {
         if(exp[i]=='#'&&exp[i+1]>='0'&&exp[i+1]<='9') {
             int index=i+1;
-            while(exp[index]>='0'&&exp[index]<='9'||exp[index]=='.') {
+            while(exp[index]!='\7') {
                 index++;
             }
             operand data;
@@ -754,12 +776,12 @@ Matrix calc(string exp) {
             data.num=-data.num;
             datastk.push(data);
             read.clear();
-            i=index;
+            i=index+1;
             continue;
         } //带负号的数
         else if(exp[i]>='0'&&exp[i]<='9') {
             int index=i+1;
-            while(exp[index]>='0'&&exp[index]<='9'||exp[index]=='.') {
+            while(exp[index]!='\7') {
                 index++;
             }
             operand data;
@@ -768,17 +790,17 @@ Matrix calc(string exp) {
             read>>data.num;
             datastk.push(data);
             read.clear();
-            i=index;
+            i=index+1;
             continue;
         } //不带负号的数
         else if(exp[i]=='#'&&exp[i+1]=='[') {
             int index=i+1;
-            while(exp[index]!=']') {
+            while(exp[index]!='\7') {
                 index++;
             }
             operand data;
             data.isNum=0;
-            data.mat=Matrix(exp.substr(i+1,index-i),"");
+            data.mat=Matrix(exp.substr(i+1,index-i-1),"");
             data.mat=data.mat*(-1);
             datastk.push(data);
             read.clear();
@@ -787,12 +809,12 @@ Matrix calc(string exp) {
         } //带负号的矩阵
         else if(exp[i]=='[') {
             int index=i+1;
-            while(exp[index]!=']') {
+            while(exp[index]!='\7') {
                 index++;
             }
             operand data;
             data.isNum=0;
-            data.mat=Matrix(exp.substr(i,index-i+1),"");
+            data.mat=Matrix(exp.substr(i,index-i),"");
             datastk.push(data);
             read.clear();
             i=index+1;
@@ -800,7 +822,7 @@ Matrix calc(string exp) {
         } //不带负号的矩阵
         else if(exp[i]=='#'&& (isalpha(exp[i+1])||exp[i+1]=='_') ) {
             int index=i+1;
-            while(isalpha(exp[index])||exp[index]=='_') {
+            while(exp[index]!='\7') {
                 index++;
             }
             operand data;
@@ -817,12 +839,12 @@ Matrix calc(string exp) {
             data.mat=(*it)*(-1);
             datastk.push(data);
             read.clear();
-            i=index;
+            i=index+1;
             continue;
         } //带负号的矩阵变量
         else if(isalpha(exp[i])||exp[i]=='_') {
             int index=i+1;
-            while(isalpha(exp[index])||exp[index]=='_') {
+            while(exp[index]!='\7') {
                 index++;
             }
             operand data;
@@ -839,7 +861,7 @@ Matrix calc(string exp) {
             data.mat=(*it)*(-1);
             datastk.push(data);
             read.clear();
-            i=index;
+            i=index+1;
             continue;
         } //不带负号的矩阵变量
           //完成对操作数的压入
@@ -956,13 +978,7 @@ Matrix calc(string exp) {
             continue;
         }
     }
-    if(datastk.size()!=1) {
-        //计算错误
-        return datastk.top().mat;
-    }
-    else {
-        return datastk.top().mat;
-    }
+   return datastk.top();
 }
 
 string rev_polish(string exp) {
