@@ -830,15 +830,16 @@ operand calc(string exp) {
             vector<operand>::iterator it=opedata.begin();
             for(; it!=opedata.end(); it++) {
                 if(it->mat.getName()==exp.substr(i+1,index-i-1)) {
+                    data=*it;
+                    datastk.push(data);
+                    read.clear();
                     break;
                 }
             }
             if(it==opedata.end()) {
+                cout << "no such variable QwQ";
                 //错误处理：变量名未定义
             }
-            data=*it;
-            datastk.push(data);
-            read.clear();
             i=index+1;
             continue;
         } //带负号的变量
@@ -851,15 +852,16 @@ operand calc(string exp) {
             vector<operand>::iterator it=opedata.begin();
             for(; it!=opedata.end(); it++) {
                 if(it->mat.getName()==exp.substr(i,index-i)) {
+                    data=*it;
+                    datastk.push(data);
+                    read.clear();
                     break;
                 }
             }
             if(it==opedata.end()) {
+                cout << "no such variable QwQ";
                 //错误处理：变量名未定义
             }
-            data=*it;
-            datastk.push(data);
-            read.clear();
             i=index+1;
             continue;
         } //不带负号的变量
