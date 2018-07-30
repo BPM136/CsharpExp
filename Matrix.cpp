@@ -751,8 +751,11 @@ operand calc(string exp) {
                     }
                 }
                 string fin_exp=exp.substr(0,index)+new_name+exp.substr(brac_r+1,exp.size()-brac_r);
-                Matrix new_mat=calc(exp.substr(brac_l+1,brac_r-brac_l-1)).mat.adj();
-                new_mat.setName(new_name);
+                operand new_ope;
+                new_ope.isNum=0;
+                new_ope.mat=calc(exp.substr(brac_l+1,brac_r-brac_l-1)).mat.adj();
+                new_ope.mat.setName(new_name);
+                opedata.push_back(new_ope);
                 return calc(fin_exp);
             }
         }
