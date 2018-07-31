@@ -116,10 +116,10 @@ Matrix::Matrix(const string& str, const string& name = "") {
     double num;
     string numstr;
     istringstream read;
-    for(int index=0, i;str[index]!='\0';index++){
-        if(isdigit(str[index])){
+    for(int index=0, i;str[index]!='\0';index++) {
+        if(isdigit(str[index])) {
             i=index;
-            while(isdigit(str[i])||str[i]=='.'){i++;}
+            while(isdigit(str[i])||str[i]=='.') {i++;}
             numstr=str.substr(index,i-index);
             read.str(numstr);
             read>>num;
@@ -130,9 +130,15 @@ Matrix::Matrix(const string& str, const string& name = "") {
             index=i;
             read.clear();
         }
-        if(str[index]==';'||str[index]==']'){
+        if(str[index]==';'||str[index]==']') {
             this->data.push_back(newline);
             newline.clear();
+        }
+    }
+    int col=this->data[0].size();
+    for(int i=0; i<this->data.size(); i++) {
+        if(col!=this->data[i].size()) {
+            throw MatrixException(" === 错误：输入的矩阵非法 === ", 1);
         }
     }
     this->name = name;
@@ -551,10 +557,14 @@ int main() {
         }
         else if(command=="accuracy") {
             change_accu(Matrix::ACCU);
+            cin.clear();
+            cin.sync();
         }
         else {
             try{
                 process(command);
+                cin.clear();
+                cin.sync();
             } catch(MatrixException& e) {
                 cout << e.message <<endl;
             }
@@ -577,34 +587,39 @@ void listVariable() {
 
 void help_info(void) {
     cout << "使用方法：" << endl;
-    cout << "1.输入矩阵：输入矩阵需要按照格式[X1,X2,X3;X4,X5,X6]的格式进行输入，分号“;“代表换行，中括号“[“，“]“代表矩阵的开始和结束，Xi为常数。" << endl;
+    cout << "1.输入矩阵：输入矩阵需要按照格式[X1,X2,X3;X4,X5,X6]的格式进行输入，分号“;”代表换行，中括号“[”，“]”代表矩阵的开始和结束，Xi为常数。" << endl;
     cout << "                   X1 X2 X3" << endl;
     cout << "若如此，将得到矩阵 X4 X5 X6" << endl;
-    cout << "2.赋值：输入“a=[X1,X2,X3;X4,X5,X6]“即记a为矩阵[X1,X2,X3;X4,X5,X6]。对于每一个等式，将等号右侧的矩阵运算结果赋值给左侧变量。变量的名称只能取大小写字母,并且不能为rank,det,quit等功能性字符串。"<<endl;
-    cout << "3.运算：合法的运算符包括“(“(左括号),“)“(右括号),“+“(加),“-“(减),“*“(乘),“^“(幂)“,“det()“(取行列式),“rank()“(取秩),“adj()“(取伴随矩阵),“^-1“(取逆),取行列式与取秩的优先级仅次于括号，并且与其右侧矩阵运算。其他一般运算符优先级照常。"<<endl;
+    cout << "2.赋值：输入“a=[X1,X2,X3;X4,X5,X6]”即记a为矩阵[X1,X2,X3;X4,X5,X6]。对于每一个等式，将等号右侧的矩阵运算结果赋值给左侧变量。变量的名称只能取大小写字母。"<<endl;
+    cout << "3.运算：合法的运算符包括“(”(左括号),“)”(右括号),“+”(加),“-”(减),“*”(矩阵乘法，数乘),“/”(除法，数除),“^”(幂)“,“det()”(取行列式),“rank()”(取秩),“adj()”(取伴随矩阵),“^-1”(取逆)。"<<endl;
     cout << "4.使用举例：如输入 a=[2,3;1,4]" << endl;
     cout << "                   b=[2,5;1,7]" << endl;
     cout << "                   a*rank(b)" << endl;
     cout << "将得到矩阵:   4 6" << endl;
     cout << "              2 8" << endl;
-    cout << "如果想要更改显示精度，请输入accuracy" << endl;
-    cout << "如果想要退出，请输入“quit“。" << endl;
+    cout << "于此同时，a，b的值也会被储存。" << endl;
+    cout << "如果想要获取上一次的运算结果，请输入“ans”。例如输入“det(ans)”，将得到上一次矩阵计算结果的行列式20。" << endl;
+    cout << "如果想要更改显示精度，请输入“accuracy”" << endl;
+    cout << "如果想要退出，请输入“quit”。" << endl;
 }
 
 void change_accu(unsigned short int& accuracy) {
     unsigned short int new_accu;
     cout << "当前精度是" << accuracy << endl;
     cout << "精度代表输出结果保留的小数点位数，精度为0代表输出整数结果：" << endl;
-    cout << "请输入新的精度，输入“-1“不进行改变：";
+    cout << "请输入新的精度，输入“-1“不进行改变，最大精度为10：";
     cin >> new_accu;
     if(new_accu==(unsigned short int)-1) {
         return;
     }
     else if(new_accu>10) {
-        cout << "精度大于10，将精度设为最大精度10。";
+        cout << "精度大于10，将精度设为最大精度10" << endl;
         accuracy = 10;
     }
-    else accuracy = new_accu;
+    else {
+        cout << "将精度设为" << new_accu << endl;
+        accuracy = new_accu;
+    }
 }
 
 bool check_name(string name) {
@@ -644,6 +659,7 @@ void process(string exp) {
             string name = command.substr(0, index);
             string exp = command.substr(index+1, command.size()-index);
             if(check_exp(exp)&&check_name(name)) {
+                operand ans1 = calc(exp);
                 vector<operand>::iterator it=opedata.begin();
                 for(; it!=opedata.end(); it++) {
                     if(it->mat.getName()==name) {
@@ -651,7 +667,6 @@ void process(string exp) {
                         break;
                     }
                 } //如果已经有此名称的变量，则覆盖
-                operand ans1 = calc(exp);
                 ans1.mat.setName(name);
                 opedata.push_back(ans1); //写入新的变量
                 cout << name << " = " << endl;
@@ -997,11 +1012,17 @@ operand calc(string exp) {
             datastk.pop();
             operand result;
             if(data1.isNum&&data2.isNum) {
+                if(data1.num==0) {
+                    throw MatrixException(" === 错误：零不可作为除数 === ", 2);
+                }
                 result.isNum=1;
                 result.num=data2.num/data1.num;
                 datastk.push(result);
             } //数字相除
             else if(data1.isNum&&!data2.isNum) {
+                if(data1.num==0) {
+                    throw MatrixException(" === 错误：零不可作为除数 === ", 2);
+                }
                 result.isNum=0;
                 result.mat=data2.mat/data1.num;
                 datastk.push(result);
