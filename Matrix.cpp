@@ -545,12 +545,10 @@ int main() {
     // + - * / ^ det rank adj -(负)
     // 函数型(det, rank, adj)会优先完成计算并将其结果返回至原表达式中
 
-    cout<<"欢迎使用矩阵计算器！";
     string command;
     help_info();
-    cout << endl;
     while(1) {
-        cout << "请输入表达式->" << endl;
+        cout << endl << "请输入表达式->";
         getline(cin,command);
         if(command=="quit") {
             return 0;
@@ -586,27 +584,28 @@ void listVariable() {
 }
 
 void help_info(void) {
-    cout << "使用方法：" << endl;
-    cout << "1.输入矩阵：输入矩阵需要按照格式[X1,X2,X3;X4,X5,X6]的格式进行输入，分号“;”代表换行，中括号“[”，“]”代表矩阵的开始和结束，Xi为常数。" << endl;
+    cout << "欢迎使用矩阵计算器！使用方法：" << endl;
+    cout << endl << "1.输入矩阵：输入矩阵需要按照格式[X1,X2,X3;X4,X5,X6]的格式进行输入，分号“;”代表换行，中括号“[”，“]”代表矩阵的开始和结束，Xi为常数。" << endl;
     cout << "                   X1 X2 X3" << endl;
     cout << "若如此，将得到矩阵 X4 X5 X6" << endl;
-    cout << "2.赋值：输入“a=[X1,X2,X3;X4,X5,X6]”即记a为矩阵[X1,X2,X3;X4,X5,X6]。对于每一个等式，将等号右侧的矩阵运算结果赋值给左侧变量。变量的名称只能取大小写字母。"<<endl;
-    cout << "3.运算：合法的运算符包括“(”(左括号),“)”(右括号),“+”(加),“-”(减),“*”(矩阵乘法，数乘),“/”(除法，数除),“^”(幂)“,“det()”(取行列式),“rank()”(取秩),“adj()”(取伴随矩阵),“^-1”(取逆)。"<<endl;
-    cout << "4.使用举例：如输入 a=[2,3;1,4]" << endl;
+    cout << endl << "2.赋值：输入“a=[X1,X2,X3;X4,X5,X6]”即记a为矩阵[X1,X2,X3;X4,X5,X6]。对于每一个等式，将等号右侧的矩阵运算结果赋值给左侧变量。变量的名称只能取大小写字母。"<<endl;
+    cout << endl << "3.运算：合法的运算符包括“(”(左括号),“)”(右括号),“+”(加),“-”(减),“*”(矩阵乘法，数乘),“/”(除法，数除),“^”(幂)“,“det()”(取行列式),“rank()”(取秩),“adj()”(取伴随矩阵),“^-1”(取逆)。"<<endl;
+    cout << endl << "4.使用举例：如输入 a=[2,-3;-1,4]" << endl;
     cout << "                   b=[2,5;1,7]" << endl;
     cout << "                   a*rank(b)" << endl;
-    cout << "将得到矩阵:   4 6" << endl;
-    cout << "              2 8" << endl;
+    cout << "将得到矩阵:   4 -6" << endl;
+    cout << "             -2  8" << endl;
     cout << "于此同时，a，b的值也会被储存。" << endl;
-    cout << "如果想要获取上一次的运算结果，请输入“ans”。例如输入“det(ans)”，将得到上一次矩阵计算结果的行列式20。" << endl;
-    cout << "如果想要更改显示精度，请输入“accuracy”" << endl;
-    cout << "如果想要退出，请输入“quit”。" << endl;
+    cout << endl << "5.如果想要获取上一次的运算结果，请输入“ans”。例如输入“a=a*det(-ans)”，将得到上一次矩阵计算结果的负值的行列式20与原矩阵a数乘，得到新的a矩阵[40,-60;-20,80]。" << endl;
+    cout << endl << "6.适用于数而非矩阵的计算也同样可以输入。" << endl;
+    cout << endl << "7.如果想要更改显示精度，请输入“accuracy”，默认精度是2，即显示小数点后两位数字。" << endl;
+    cout << endl << "8.如果想要退出，请输入“quit”。" << endl;
 }
 
 void change_accu(unsigned short int& accuracy) {
     unsigned short int new_accu;
-    cout << "当前精度是" << accuracy << endl;
-    cout << "精度代表输出结果保留的小数点位数，精度为0代表输出整数结果：" << endl;
+    cout << "当前精度是 " << accuracy << endl;
+    cout << "精度代表输出结果保留的小数点位数，精度为0代表输出整数结果。" << endl;
     cout << "请输入新的精度，输入“-1“不进行改变，最大精度为10：";
     cin >> new_accu;
     if(new_accu==(unsigned short int)-1) {
@@ -724,7 +723,18 @@ void process(string exp) {
 operand calc(string exp) {
     int index;  //下标
     int brac_l,brac_r,brac_num,brac_index;   //括号
-    for(index=0;exp[index]!='\0';index++) {
+    for(index=0; exp[index]!='\0'; index++) {
+        if(exp[index]=='-'&&exp[index+1]=='-') {
+            exp=exp.substr(0,index)+'+'+exp.substr(index+2,exp.size()-index-1);
+        }
+        if(exp[index]=='+'&&(index==0||exp[index-1]=='(')) {
+            exp=exp.substr(0,index)+exp.substr(index+1,exp.size()-index);
+        }
+    }
+    if(exp[0]=='-') {
+        exp="0"+exp;
+    }
+    for(index=0; exp[index]!='\0'; index++) {
 
         if (exp.substr(index, 5) == "rank(") {
             brac_l = index + 4;
@@ -765,11 +775,13 @@ operand calc(string exp) {
             } else {
                 string new_name;
                 string underline="_";
-                char replace_name;
-                int i=0;
+                char replace_name1;
+                char replace_name2;
+                int i=0,j=0;
                 while(1) {
-                    replace_name='a'+i;
-                    new_name=underline+replace_name;
+                    replace_name1='a'+i;
+                    replace_name2='a'+j;
+                    new_name=underline+replace_name1+replace_name2;
                     vector<operand>::iterator it=opedata.begin();
                     for(; it!=opedata.end(); it++) {
                         if(it->mat.getName() == new_name) {
@@ -781,6 +793,13 @@ operand calc(string exp) {
                     }
                     else {
                         i++;
+                        if(i==26) {
+                            i=0;
+                            j++;
+                        }
+                        if(j==26) {
+                            j=0;
+                        }
                         continue;
                     }
                 }
@@ -927,6 +946,9 @@ operand calc(string exp) {
             }
             operand data1=datastk.top();
             datastk.pop();
+            if(datastk.empty()) {
+                throw MatrixException(" === 错误：表达式非法(加号错误) === ", 2);
+            }
             operand data2=datastk.top();
             datastk.pop();
             operand result;
@@ -953,6 +975,9 @@ operand calc(string exp) {
             }
             operand data1=datastk.top();
             datastk.pop();
+            if(datastk.empty()) {
+                throw MatrixException(" === 错误：表达式非法(减号错误) === ", 2);
+            }
             operand data2=datastk.top();
             datastk.pop();
             operand result;
@@ -979,6 +1004,9 @@ operand calc(string exp) {
             }
             operand data1=datastk.top();
             datastk.pop();
+            if(datastk.empty()) {
+                throw MatrixException(" === 错误：表达式非法(乘号错误) === ", 2);
+            }
             operand data2=datastk.top();
             datastk.pop();
             operand result;
@@ -1006,8 +1034,14 @@ operand calc(string exp) {
             continue;
         }
         else if(exp[i]=='/') {
+            if(datastk.empty()) {
+                throw MatrixException(" === 错误：表达式非法(除号错误) === ", 2);
+            }
             operand data1=datastk.top();
             datastk.pop();
+            if(datastk.empty()) {
+                throw MatrixException(" === 错误：表达式非法(除号错误) === ", 2);
+            }
             operand data2=datastk.top();
             datastk.pop();
             operand result;
@@ -1040,6 +1074,9 @@ operand calc(string exp) {
             }
             operand data1=datastk.top();
             datastk.pop();
+            if(datastk.empty()) {
+                throw MatrixException(" === 错误：表达式非法(幂号错误) === ", 2);
+            }
             operand data2=datastk.top();
             datastk.pop();
             operand result;
@@ -1061,7 +1098,10 @@ operand calc(string exp) {
             continue;
         }
     }
-   return datastk.top();
+    if(datastk.empty()) {
+        throw MatrixException(" === 错误：表达式错误 === ", 2);
+    }
+    return datastk.top();
 }
 
 string rev_polish(string exp) {
