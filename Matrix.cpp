@@ -25,8 +25,8 @@ public:
     string message;
     int type;
     /*
-     * 1: ä¸æ˜¯çŸ©é˜µ
-     * 2: éæ³•è¿ç®—
+     * 1: ²»ÊÇ¾ØÕó
+     * 2: ·Ç·¨ÔËËã
      * */
 
     MatrixException():message(""), type(0) {}
@@ -41,19 +41,19 @@ private:
 
 public:
     Matrix() {
-        data = vector<vector<double> >();    //0*0çš„çŸ©é˜µ
+        data = vector<vector<double> >();    //0*0µÄ¾ØÕó
         name = "";
-    }                                       //åˆå§‹åŒ–
+    }                                       //³õÊ¼»¯
     Matrix(const string& str, const string& name);
     Matrix(const Matrix& other);
 
-    Matrix operator+(const Matrix& right) const; // çŸ©é˜µåŠ æ³•
-    Matrix operator-(const Matrix& right) const; // çŸ©é˜µå‡æ³•
-    Matrix operator*(const Matrix& right) const; // çŸ©é˜µä¹˜æ³•
+    Matrix operator+(const Matrix& right) const; // ¾ØÕó¼Ó·¨
+    Matrix operator-(const Matrix& right) const; // ¾ØÕó¼õ·¨
+    Matrix operator*(const Matrix& right) const; // ¾ØÕó³Ë·¨
 
-    Matrix operator/(const double& right) const; // çŸ©é˜µ é™¤ æ•°
-    Matrix operator*(const double& right) const; // çŸ©é˜µæ•°ä¹˜
-    friend Matrix operator*(const double& left, const Matrix& right); // çŸ©é˜µæ•°ä¹˜(æ•°åœ¨å·¦è¾¹)
+    Matrix operator/(const double& right) const; // ¾ØÕó ³ı Êı
+    Matrix operator*(const double& right) const; // ¾ØÕóÊı³Ë
+    friend Matrix operator*(const double& left, const Matrix& right); // ¾ØÕóÊı³Ë(ÊıÔÚ×ó±ß)
 
     friend istream& operator>> (istream& in, Matrix& item);
     friend ostream& operator<< (ostream& out, const Matrix& item);
@@ -82,16 +82,16 @@ public:
         return this->name;
     }
 
-    int rank() const; //è®¡ç®—ç§©
-    double det() const; //è®¡ç®—è¡Œåˆ—å¼
+    int rank() const; //¼ÆËãÖÈ
+    double det() const; //¼ÆËãĞĞÁĞÊ½
 
-    Matrix inv() const; //è®¡ç®—é€†
-    Matrix adj() const; //è®¡ç®—ä¼´éšçŸ©é˜µ
-    Matrix power(int) const; //è®¡ç®—å¹‚
+    Matrix inv() const; //¼ÆËãÄæ
+    Matrix adj() const; //¼ÆËã°éËæ¾ØÕó
+    Matrix power(int) const; //¼ÆËãÃİ
 
-    bool isMatrix() const; //è¿”å›æ˜¯å¦æ˜¯çŸ©é˜µ
+    bool isMatrix() const; //·µ»ØÊÇ·ñÊÇ¾ØÕó
 
-    static unsigned short int ACCU; //æ˜¾ç¤ºç²¾åº¦
+    static unsigned short int ACCU; //ÏÔÊ¾¾«¶È
 
 };
 //
@@ -101,12 +101,12 @@ public:
 //unsigned short int change_accu(unsigned short int);
 //vector<vector<double> > calculate(string,vector<mat>&);
 //bool check(string);
-//bool check_name(string);                                            //æ£€æŸ¥ç­‰å·å³ä¾§è¡¨è¾¾å¼æ˜¯å¦å‡ºé”™
-//vector<vector<double> > string2mat(string);                         //å­—ç¬¦ä¸²è½¬åŒ–ä¸ºçŸ©é˜µ
+//bool check_name(string);                                            //¼ì²éµÈºÅÓÒ²à±í´ïÊ½ÊÇ·ñ³ö´í
+//vector<vector<double> > string2mat(string);                         //×Ö·û´®×ª»¯Îª¾ØÕó
 //vector<mat>::iterator find_name(vector<mat>&,string);
-//void show_mat(vector<vector<double> > matrix,unsigned short int);   //æŒ‰ç…§ç²¾åº¦æ˜¾ç¤ºæ­¤çŸ©é˜µ
-//int row(vector<vector<double> > matrix){return matrix.size();}      //è¡Œæ•°
-//int col(vector<vector<double> > matrix){return matrix[0].size();}   //åˆ—æ•°
+//void show_mat(vector<vector<double> > matrix,unsigned short int);   //°´ÕÕ¾«¶ÈÏÔÊ¾´Ë¾ØÕó
+//int row(vector<vector<double> > matrix){return matrix.size();}      //ĞĞÊı
+//int col(vector<vector<double> > matrix){return matrix[0].size();}   //ÁĞÊı
 //vector<vector<double> > cal_adj(vector<vector<double> >);
 //vector<vector<double> > cal_det(vector<vector<double> >);
 //vector<vector<double> > cal_rank(vector<vector<double> >);
@@ -140,7 +140,7 @@ Matrix::Matrix(const string& str, const string& name = "") {
 //        throw MatrixException(" === MatrixError: Not a Matrix(Wrong Input from Code) === ", 1);
 //    }
 
-} // å¯ç”¨, æ— æ£€æŸ¥
+} // ¿ÉÓÃ, ÎŞ¼ì²é
 Matrix::Matrix(const Matrix& other) {
     data = other.data;
     name = other.name;
@@ -152,17 +152,11 @@ istream& operator>> (istream& in, Matrix& item) {
     try {
         item = Matrix(buf, item.name);
     } catch(MatrixException& e) {
-        throw MatrixException(" === MatrixError: Not a Matrix(Wrong Input from Keyboard) === ", 1);
+        throw MatrixException(" === ´íÎó£ºÊäÈëµÄ¾ØÕó·Ç·¨ === ", 1);
     }
-
     return in;
 }
 ostream& operator<< (ostream& out, const Matrix& item) {
-//    if(item.errorFlag != 0) {
-//        out << "You fucking try to output a piece of shit!" << endl;
-//    }
-
-    // å¯¹é½
     int maxnum=0,num;
     for(int i=0; i<item.row(); i++) {
         for(int j=0; j<item.col(); j++) {
@@ -177,7 +171,7 @@ ostream& operator<< (ostream& out, const Matrix& item) {
             }
         }
     }
-    // è¾“å‡º
+    // Êä³ö
     for(int i=0; i<item.row(); i++) {
         for(int j=0; j<item.col(); j++) {
             out << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << setw(Matrix::ACCU+maxnum+3) << item.data[i][j];
@@ -203,7 +197,7 @@ Matrix Matrix::operator+(const Matrix& right) const {
 //        return ans;
 //    }
     if(this->row()!=right.row() || this->col()!=right.col()) {
-        throw MatrixException(" === MatrixError: Left matrix and Right matrix is not Homotypic(in operator+) === ", 2);
+        throw MatrixException(" === ´íÎó£º¾ØÕó¼Ó·¨ÖĞÁ½¾ØÕóĞĞÁĞÊı²»È«ÏàµÈ === ", 2);
     }
     else {
         vector<double> newline;
@@ -224,7 +218,7 @@ Matrix Matrix::operator-(const Matrix& right) const {
 //        return ans;
 //    }
     if(this->row()!=right.row() || this->col()!=right.col()) {
-        throw MatrixException(" === MatrixError: Left matrix and Right matrix is not Homotypic(in operator-) === ", 2);
+        throw MatrixException(" === ´íÎó£º¾ØÕó¼õ·¨ÖĞÁ½¾ØÕóĞĞÁĞÊı²»È«ÏàµÈ === ", 2);
     }
     else {
         vector<double> newline;
@@ -241,7 +235,7 @@ Matrix Matrix::operator-(const Matrix& right) const {
 Matrix Matrix::operator*(const Matrix& right) const {
     Matrix ans;
     if(this->col()!=right.row()) {
-       throw MatrixException(" === MatrixError: The column of Left matrix is not equal to the row of Right matrix(in operator*) === ", 2);
+       throw MatrixException(" === ´íÎó£º¾ØÕó³Ë·¨ÖĞ×ó²à¾ØÕóÁĞÊı²»µÈÓÚÓÒ²à¾ØÕóĞĞÊı === ", 2);
     }
     vector<double> newline;
     double sum;
@@ -278,7 +272,7 @@ Matrix operator*(const double& left, const Matrix& right) {
 }
 Matrix Matrix::operator/(const double& right) const {
     if(fabs(right) <= 10e-8) {
-        throw MatrixException(" === MatrixError: Divided by Zero(in operator/ with a number) === ", 2);
+        throw MatrixException(" === ´íÎó£º¾ØÕóÊı³ıÖĞ³ıÊı²»ÄÜÎª0 === ", 2);
     }
     Matrix ans=*this;
     for(int i=0; i<ans.row(); i++) {
@@ -291,7 +285,7 @@ Matrix Matrix::operator/(const double& right) const {
 double Matrix::det() const {
     Matrix tri = *this;
     if(this->row()!=this->col()) {
-        throw MatrixException(" === MatrixError: Not a Square Matrix(in Function det) === ", 2);
+        throw MatrixException(" === ´íÎó£º·Ç·½Õó²»¿ÉÇóĞĞÁĞÊ½ === ", 2);
     }
     int order=this->row();
     double ans=1;
@@ -310,7 +304,7 @@ double Matrix::det() const {
                     cache=tri.data[m][q];
                     tri.data[m][q]=tri.data[i][q];
                     tri.data[i][q]=cache;
-                } //äº¤æ¢ç¬¬mè¡Œå’Œç¬¬iè¡Œ
+                } //½»»»µÚmĞĞºÍµÚiĞĞ
             }
         }
         for(int j=i+1; j<order; j++) {
@@ -319,10 +313,10 @@ double Matrix::det() const {
                 tri.data[j][k]-=ratio*tri.data[i][k];
             }
         }
-    } //å°†triåŒ–ä¸ºä¸Šä¸‰è§’çŸ©é˜µ
+    } //½«tri»¯ÎªÉÏÈı½Ç¾ØÕó
     for(int i=0; i<order; i++) {
         ans*=tri.data[i][i];
-    } //è®¡ç®—triçš„è¡Œåˆ—å¼
+    } //¼ÆËãtriµÄĞĞÁĞÊ½
     return ans;
 }
 int Matrix::rank() const {
@@ -345,7 +339,7 @@ int Matrix::rank() const {
                     cache=tri.data[m][q];
                     tri.data[m][q]=tri.data[i][q];
                     tri.data[i][q]=cache;
-                } //äº¤æ¢ç¬¬mè¡Œå’Œç¬¬iè¡Œ
+                } //½»»»µÚmĞĞºÍµÚiĞĞ
             }
         }
         else {
@@ -357,7 +351,7 @@ int Matrix::rank() const {
             }
             i++;
             j++;
-        } //å°†triåŒ–ä¸ºé˜¶æ¢¯å½¢
+        } //½«tri»¯Îª½×ÌİĞÎ
     }
     int n=0,k=0;
     while(n<this->row() && k<this->col()) {
@@ -375,14 +369,14 @@ int Matrix::rank() const {
 Matrix Matrix::inv() const {
     Matrix copy = *this;
     if(this->row()!=this->col()) {
-        throw MatrixException(" === MatrixError: Not a Square Matrix(in Function det) === ", 2);
+        throw MatrixException(" === ´íÎó£º·Ç·½Õó²»¿ÉÇóÄæ === ", 2);
     }
     Matrix ans;
     ans.data = vector<vector<double> >(row(), vector<double>(col(), 0));
     int order = this->row();
     for(int i=0; i<order; i++) {
         ans.data[i][i] = 1;
-    } //åˆ›å»ºå•ä½çŸ©é˜µans
+    } //´´½¨µ¥Î»¾ØÕóans
 
     for(int i=0; i<order; i++) {
         if(copy.data[i][i]==0) {
@@ -391,7 +385,7 @@ Matrix Matrix::inv() const {
                 k++;
             }
             if(k==order) {
-                throw MatrixException("Not a Full Rank Matrix(in Function rank)", 2);
+                throw MatrixException(" === ´íÎó£º·ÇÂúÖÈ¾ØÕó²»¿ÉÇóÄæ === ", 2);
             }
             else {
                 double cache;
@@ -403,7 +397,7 @@ Matrix Matrix::inv() const {
                     ans.data[k][n]=ans.data[i][n];
                     ans.data[i][n]=cache;
                 }
-            } //äº¤æ¢ç¬¬kè¡Œå’Œç¬¬iè¡Œ
+            } //½»»»µÚkĞĞºÍµÚiĞĞ
         }
         for(int p=i+1; p<order; p++) {
             double ratio=copy.data[p][i]/copy.data[i][i];
@@ -412,7 +406,7 @@ Matrix Matrix::inv() const {
                 ans.data[p][q]-=ratio*ans.data[i][q];
             }
         }
-    } //copyçŸ©é˜µåŒ–ä¸ºä¸Šä¸‰è§’
+    } //copy¾ØÕó»¯ÎªÉÏÈı½Ç
     for(int i=1; i<order; i++) {
         for(int j=0; j<i; j++) {
             double ratio=copy.data[j][i]/copy.data[i][i];
@@ -421,7 +415,7 @@ Matrix Matrix::inv() const {
                 ans.data[j][p]-=ratio*ans.data[i][p];
             }
         }
-    } //copyçŸ©é˜µåŒ–ä¸ºå¯¹è§’
+    } //copy¾ØÕó»¯Îª¶Ô½Ç
     for(int i=0; i<order; i++) {
         for(int j=0; j<order; j++) {
             ans.data[i][j]/=copy.data[i][i];
@@ -432,28 +426,28 @@ Matrix Matrix::inv() const {
 Matrix Matrix::adj() const {
     Matrix ans = *this;
     if(this->row()!=this->col()) {
-        throw MatrixException(" === MatrixError: Not a Square Matrix(in Function adj) === ", 2);
+        throw MatrixException(" === ´íÎó£º·Ç·½Õó²»¿ÉÇó°éËæ¾ØÕó === ", 2);
     }
     return ans.inv()*ans.det();
 }
 Matrix Matrix::power(int exp) const {
     Matrix ans = *this, cpy = *this;
     if(this->row()!=this->col()) {
-        throw MatrixException(" === MatrixError: Not a Square Matrix(in Function power) === ", 2);
+        throw MatrixException(" === ´íÎó£º·Ç·½Õó²»¿ÉÇóÃİ === ", 2);
         return ans;
     }
     if(exp<0) {
-        return ans.inv().power(-exp); //é€†çš„-expæ¬¡æ–¹
+        return ans.inv().power(-exp); //ÄæµÄ-exp´Î·½
     }
     else if(exp==0) {
         ans.data = vector<vector<double> >(row(), vector<double>(col(), 0));
-        return ans; //å•ä½çŸ©é˜µ
+        return ans; //µ¥Î»¾ØÕó
     }
     else if(exp==1) {
         return ans;
     }
 
-//    else return ans*ans.power(exp-1); //é€’å½’
+//    else return ans*ans.power(exp-1); //µİ¹é
 
 //    else if(exp==2) {
 //        return ans*ans;
@@ -463,7 +457,7 @@ Matrix Matrix::power(int exp) const {
 //            return ans.power(exp/2).power(2);
 //        }
 //        else return ans.power((exp-1)/2).power(2)*ans;
-//    } //å¿«é€Ÿå¹‚(é€’å½’)
+//    } //¿ìËÙÃİ(µİ¹é)
 
     else {
         exp--;
@@ -475,23 +469,23 @@ Matrix Matrix::power(int exp) const {
             exp >>= 1;
         }
         return ans;
-    } //å¿«é€Ÿå¹‚(æ— é€’å½’)
+    } //¿ìËÙÃİ(ÎŞµİ¹é)
 }
 
 struct operand{
-    bool isNum; //å¦‚æœå‚¨å­˜çš„æ˜¯æ•°åˆ™ä¸ºçœŸï¼Œå¦‚æœæ˜¯çŸ©é˜µåˆ™ä¸ºå‡
+    bool isNum; //Èç¹û´¢´æµÄÊÇÊıÔòÎªÕæ£¬Èç¹ûÊÇ¾ØÕóÔòÎª¼Ù
     Matrix mat;
     double num;
-}; //æ“ä½œæ•°ç»“æ„ä½“
+}; //²Ù×÷Êı½á¹¹Ìå
 
 void help_info(void);
-unsigned short int change_accu(unsigned short int);
+void change_accu(unsigned short int &);
 void process(string);
-bool check_name(string); //æ£€æŸ¥ç­‰å·å·¦ä¾§å˜é‡åæ˜¯å¦æœ‰éæ³•å­—ç¬¦
-bool check_exp(string); //æ£€æŸ¥ç­‰å·å³ä¾§è¡¨è¾¾å¼æ˜¯å¦æœ‰éæ³•å­—ç¬¦
-operand calc(string); //è¿”å›è¡¨è¾¾å¼è®¡ç®—å¾—åˆ°çš„çŸ©é˜µ
-string rev_polish(string); //è¡¨è¾¾å¼è½¬åŒ–ä¸ºé€†æ³¢å…°è¡¨è¾¾å¼
-unsigned short int priority(char); //è¿”å›è¿ç®—ç¬¦çš„ä¼˜å…ˆçº§
+bool check_name(string); //¼ì²éµÈºÅ×ó²à±äÁ¿ÃûÊÇ·ñÓĞ·Ç·¨×Ö·û
+bool check_exp(string); //¼ì²éµÈºÅÓÒ²à±í´ïÊ½ÊÇ·ñÓĞ·Ç·¨×Ö·û
+operand calc(string); //·µ»Ø±í´ïÊ½¼ÆËãµÃµ½µÄ¾ØÕó
+string rev_polish(string); //±í´ïÊ½×ª»¯ÎªÄæ²¨À¼±í´ïÊ½
+unsigned short int priority(char); //·µ»ØÔËËã·ûµÄÓÅÏÈ¼¶
 
 unsigned short int Matrix::ACCU = 2;
 vector<operand> opedata;
@@ -522,7 +516,7 @@ int main() {
 //    cout << a.power(2);
 //    end = clock();
 //    printf("Power: %ld(clock or ms), 1000 times a.power(10000000)", end - start);
-    // ä½¿ç”¨ .det() è¯·ä½¿ç”¨è¿™ç§å½¢å¼
+    // Ê¹ÓÃ .det() ÇëÊ¹ÓÃÕâÖÖĞÎÊ½
 //    Debug
 //    string n = "testName";
 //    Matrix a("[1, 1.1, 1.3; 1.2, 1.2, -1; 1.1, 0, 1.3]", n);
@@ -535,34 +529,36 @@ int main() {
 //    cout << a.power(2);
 //    end = clock();
 //    printf("Power: %ld(clock or ms), 1000 times a.power(10000000)", end - start);
-//     ä½¿ç”¨ .det() è¯·ä½¿ç”¨è¿™ç§å½¢å¼
+//     Ê¹ÓÃ .det() ÇëÊ¹ÓÃÕâÖÖĞÎÊ½
 //    try {
 //        cout << a.det() << endl;
 //    } catch (int) {
-//        cout << "éæ–¹é˜µä¸å¯æ±‚è¡Œåˆ—å¼" << endl;
+//        cout << "·Ç·½Õó²»¿ÉÇóĞĞÁĞÊ½" << endl;
 //    }
 
-    // + - * / ^ det rank adj -(è´Ÿ)
-    // å‡½æ•°å‹(det, rank, adj)ä¼šä¼˜å…ˆå®Œæˆè®¡ç®—å¹¶å°†å…¶ç»“æœè¿”å›è‡³åŸè¡¨è¾¾å¼ä¸­
+    // + - * / ^ det rank adj -(¸º)
+    // º¯ÊıĞÍ(det, rank, adj)»áÓÅÏÈÍê³É¼ÆËã²¢½«Æä½á¹û·µ»ØÖÁÔ­±í´ïÊ½ÖĞ
 
-//    cout<<"æ¬¢è¿ä½¿ç”¨çŸ©é˜µè®¡ç®—å™¨ï¼";
-//    string command;
-//    while(1) {
-//        cin>>command;
-//        if(command=="quit") {
-//            return 0;
-//        }
-//        else if(command=="accuracy") {
-//            Matrix::ACCU=change_accu(Matrix::ACCU);
-//        }
-//        else process(command);
-//    }
-    while(1){
-        cout<<"input expression->\n";
-        string exp;
-        getline(cin,exp);
-        process(exp);
-        cout<<endl;
+    cout<<"»¶Ó­Ê¹ÓÃ¾ØÕó¼ÆËãÆ÷£¡";
+    string command;
+    help_info();
+    cout << endl;
+    while(1) {
+        cout << "ÇëÊäÈë±í´ïÊ½->" << endl;
+        getline(cin,command);
+        if(command=="quit") {
+            return 0;
+        }
+        else if(command=="accuracy") {
+            change_accu(Matrix::ACCU);
+        }
+        else {
+            try{
+                process(command);
+            } catch(MatrixException& e) {
+                cout << e.message <<endl;
+            }
+        }
     }
 }
 
@@ -580,35 +576,35 @@ void listVariable() {
 }
 
 void help_info(void) {
-    cout << "ä½¿ç”¨æ–¹æ³•ï¼š" << endl;
-    cout << "1.è¾“å…¥çŸ©é˜µï¼šè¾“å…¥çŸ©é˜µéœ€è¦æŒ‰ç…§æ ¼å¼[X1,X2,X3;X4,X5,X6]çš„æ ¼å¼è¿›è¡Œè¾“å…¥ï¼Œåˆ†å·â€œ;â€œä»£è¡¨æ¢è¡Œï¼Œä¸­æ‹¬å·â€œ[â€œï¼Œâ€œ]â€œä»£è¡¨çŸ©é˜µçš„å¼€å§‹å’Œç»“æŸï¼ŒXiä¸ºå¸¸æ•°ã€‚" << endl;
+    cout << "Ê¹ÓÃ·½·¨£º" << endl;
+    cout << "1.ÊäÈë¾ØÕó£ºÊäÈë¾ØÕóĞèÒª°´ÕÕ¸ñÊ½[X1,X2,X3;X4,X5,X6]µÄ¸ñÊ½½øĞĞÊäÈë£¬·ÖºÅ¡°;¡°´ú±í»»ĞĞ£¬ÖĞÀ¨ºÅ¡°[¡°£¬¡°]¡°´ú±í¾ØÕóµÄ¿ªÊ¼ºÍ½áÊø£¬XiÎª³£Êı¡£" << endl;
     cout << "                   X1 X2 X3" << endl;
-    cout << "è‹¥å¦‚æ­¤ï¼Œå°†å¾—åˆ°çŸ©é˜µ X4 X5 X6" << endl;
-    cout << "2.èµ‹å€¼ï¼šè¾“å…¥â€œa=[X1,X2,X3;X4,X5,X6]â€œå³è®°aä¸ºçŸ©é˜µ[X1,X2,X3;X4,X5,X6]ã€‚å¯¹äºæ¯ä¸€ä¸ªç­‰å¼ï¼Œå°†ç­‰å·å³ä¾§çš„çŸ©é˜µè¿ç®—ç»“æœèµ‹å€¼ç»™å·¦ä¾§å˜é‡ã€‚å˜é‡çš„åç§°åªèƒ½å–å¤§å°å†™å­—æ¯,å¹¶ä¸”ä¸èƒ½ä¸ºrank,det,quitç­‰åŠŸèƒ½æ€§å­—ç¬¦ä¸²ã€‚"<<endl;
-    cout << "3.è¿ç®—ï¼šåˆæ³•çš„è¿ç®—ç¬¦åŒ…æ‹¬â€œ(â€œ(å·¦æ‹¬å·),â€œ)â€œ(å³æ‹¬å·),â€œ+â€œ(åŠ ),â€œ-â€œ(å‡),â€œ*â€œ(ä¹˜),â€œ^â€œ(å¹‚)â€œ,â€œdet()â€œ(å–è¡Œåˆ—å¼),â€œrank()â€œ(å–ç§©),â€œadj()â€œ(å–ä¼´éšçŸ©é˜µ),â€œ^-1â€œ(å–é€†),å–è¡Œåˆ—å¼ä¸å–ç§©çš„ä¼˜å…ˆçº§ä»…æ¬¡äºæ‹¬å·ï¼Œå¹¶ä¸”ä¸å…¶å³ä¾§çŸ©é˜µè¿ç®—ã€‚å…¶ä»–ä¸€èˆ¬è¿ç®—ç¬¦ä¼˜å…ˆçº§ç…§å¸¸ã€‚"<<endl;
-    cout << "4.ä½¿ç”¨ä¸¾ä¾‹ï¼šå¦‚è¾“å…¥ a=[2,3;1,4]" << endl;
+    cout << "ÈôÈç´Ë£¬½«µÃµ½¾ØÕó X4 X5 X6" << endl;
+    cout << "2.¸³Öµ£ºÊäÈë¡°a=[X1,X2,X3;X4,X5,X6]¡°¼´¼ÇaÎª¾ØÕó[X1,X2,X3;X4,X5,X6]¡£¶ÔÓÚÃ¿Ò»¸öµÈÊ½£¬½«µÈºÅÓÒ²àµÄ¾ØÕóÔËËã½á¹û¸³Öµ¸ø×ó²à±äÁ¿¡£±äÁ¿µÄÃû³ÆÖ»ÄÜÈ¡´óĞ¡Ğ´×ÖÄ¸,²¢ÇÒ²»ÄÜÎªrank,det,quitµÈ¹¦ÄÜĞÔ×Ö·û´®¡£"<<endl;
+    cout << "3.ÔËËã£ººÏ·¨µÄÔËËã·û°üÀ¨¡°(¡°(×óÀ¨ºÅ),¡°)¡°(ÓÒÀ¨ºÅ),¡°+¡°(¼Ó),¡°-¡°(¼õ),¡°*¡°(³Ë),¡°^¡°(Ãİ)¡°,¡°det()¡°(È¡ĞĞÁĞÊ½),¡°rank()¡°(È¡ÖÈ),¡°adj()¡°(È¡°éËæ¾ØÕó),¡°^-1¡°(È¡Äæ),È¡ĞĞÁĞÊ½ÓëÈ¡ÖÈµÄÓÅÏÈ¼¶½ö´ÎÓÚÀ¨ºÅ£¬²¢ÇÒÓëÆäÓÒ²à¾ØÕóÔËËã¡£ÆäËûÒ»°ãÔËËã·ûÓÅÏÈ¼¶ÕÕ³£¡£"<<endl;
+    cout << "4.Ê¹ÓÃ¾ÙÀı£ºÈçÊäÈë a=[2,3;1,4]" << endl;
     cout << "                   b=[2,5;1,7]" << endl;
     cout << "                   a*rank(b)" << endl;
-    cout << "å°†å¾—åˆ°çŸ©é˜µ:   4 6" << endl;
+    cout << "½«µÃµ½¾ØÕó:   4 6" << endl;
     cout << "              2 8" << endl;
-    cout << "å¦‚æœæƒ³è¦æ›´æ”¹æ˜¾ç¤ºç²¾åº¦ï¼Œè¯·è¾“å…¥accuracy" << endl;
-    cout << "å¦‚æœæƒ³è¦é€€å‡ºï¼Œè¯·è¾“å…¥â€œquitâ€œã€‚" << endl;
+    cout << "Èç¹ûÏëÒª¸ü¸ÄÏÔÊ¾¾«¶È£¬ÇëÊäÈëaccuracy" << endl;
+    cout << "Èç¹ûÏëÒªÍË³ö£¬ÇëÊäÈë¡°quit¡°¡£" << endl;
 }
 
-unsigned short int change_accu(unsigned short int accuracy) {
+void change_accu(unsigned short int& accuracy) {
     unsigned short int new_accu;
-    cout << "å½“å‰ç²¾åº¦æ˜¯" << accuracy << endl;
-    cout << "ç²¾åº¦ä»£è¡¨è¾“å‡ºç»“æœä¿ç•™çš„å°æ•°ç‚¹ä½æ•°ï¼Œç²¾åº¦ä¸º0ä»£è¡¨è¾“å‡ºæ•´æ•°ç»“æœï¼š" << endl;
-    cout << "è¯·è¾“å…¥æ–°çš„ç²¾åº¦ï¼Œè¾“å…¥â€œ-1â€œä¸è¿›è¡Œæ”¹å˜ï¼š";
+    cout << "µ±Ç°¾«¶ÈÊÇ" << accuracy << endl;
+    cout << "¾«¶È´ú±íÊä³ö½á¹û±£ÁôµÄĞ¡ÊıµãÎ»Êı£¬¾«¶ÈÎª0´ú±íÊä³öÕûÊı½á¹û£º" << endl;
+    cout << "ÇëÊäÈëĞÂµÄ¾«¶È£¬ÊäÈë¡°-1¡°²»½øĞĞ¸Ä±ä£º";
     cin >> new_accu;
     if(new_accu==(unsigned short int)-1) {
-        return accuracy;
+        return;
     }
     else if(new_accu>10) {
-        cout << "ç²¾åº¦å¤§äº10ï¼Œå°†ç²¾åº¦è®¾ä¸ºæœ€å¤§ç²¾åº¦10ã€‚";
-        return 10;
+        cout << "¾«¶È´óÓÚ10£¬½«¾«¶ÈÉèÎª×î´ó¾«¶È10¡£";
+        accuracy = 10;
     }
-    else return new_accu;
+    else accuracy = new_accu;
 }
 
 bool check_name(string name) {
@@ -619,21 +615,22 @@ bool check_name(string name) {
         return false;
     }
     return true;
-} //æ£€æŸ¥å˜é‡åæ˜¯å¦æœ‰éæ³•å­—ç¬¦
+} //¼ì²é±äÁ¿ÃûÊÇ·ñÓĞ·Ç·¨×Ö·û
 
 bool check_exp(string exp) {
     for(int index=0; exp[index]!='\0'; index++) {
-        if(isalnum(exp[index])||exp[index]=='['||exp[index]==']'||exp[index]=='('||exp[index]==')'||exp[index]=='+'
+        if(isalnum(exp[index])||exp[index]=='['||exp[index]==']'||exp[index]=='('||exp[index]==')'||exp[index]=='+'||exp[index]=='.'
         ||exp[index]=='-'||exp[index]=='*'||exp[index]=='^'||exp[index]==','||exp[index]==';'||exp[index]=='/'||exp[index]==' '){
             continue;
         }
         return false;
     }
     return true;
-} //æ£€æŸ¥ç­‰å·å³ä¾§è¡¨è¾¾å¼æ˜¯å¦æœ‰éæ³•å­—ç¬¦
+} //¼ì²éµÈºÅÓÒ²à±í´ïÊ½ÊÇ·ñÓĞ·Ç·¨×Ö·û
 
 void process(string exp) {
     string command;
+    operand ans;
     for(int index=0; exp[index]!='\0'; index++) {
         if(exp[index]==' ') {
             continue;
@@ -641,56 +638,77 @@ void process(string exp) {
         else {
             command+=exp[index];
         }
-    }
+    } //ºöÂÔ¿Õ¸ñ
     for(int index=0; command[index]!='\0'; index++) {
         if(command[index]=='=') {
             string name = command.substr(0, index);
             string exp = command.substr(index+1, command.size()-index);
             if(check_exp(exp)&&check_name(name)) {
-                operand ans1 = calc(exp);
-                ans1.mat.setName(name);
-                opedata.push_back(ans1);
                 vector<operand>::iterator it=opedata.begin();
                 for(; it!=opedata.end(); it++) {
-                    if(it->mat.getName()=="name") {
+                    if(it->mat.getName()==name) {
                         opedata.erase(it);
                         break;
                     }
-                }
+                } //Èç¹ûÒÑ¾­ÓĞ´ËÃû³ÆµÄ±äÁ¿£¬Ôò¸²¸Ç
+                operand ans1 = calc(exp);
+                ans1.mat.setName(name);
+                opedata.push_back(ans1); //Ğ´ÈëĞÂµÄ±äÁ¿
                 cout << name << " = " << endl;
                 if(ans1.isNum==1) {
-                    cout << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << ans1.num;
+                    cout << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << ans1.num << endl;
                 }
                 else {
                     cout<<ans1.mat;
                 }
+                ans=ans1;
+                ans.mat.setName("ans");
+                for(vector<operand>::iterator it1=opedata.begin(); it1!=opedata.end(); it1++) {
+                    if(it1->mat.getName()=="ans") {
+                        opedata.erase(it1);
+                        break;
+                    }
+                }
+                opedata.push_back(ans);
                 return;
-            }
+            } //¶ÔÓÚµÈÊ½µÄ´¦Àí
             else {
-                cout << "è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š" << endl;
-                return;
+                if(!check_exp(exp)) {
+                    throw MatrixException(" === ´íÎó£ºµÈºÅÓÒ²à±í´ïÊ½·Ç·¨ === ", 2);
+                }
+                else {
+                    throw MatrixException(" === ´íÎó£ºµÈºÅ×ó²à±äÁ¿Ãû·Ç·¨ === ", 2);
+                }
             }
         }
     }
     if(check_exp(command)==0){
-        cout << "è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š" << endl;
-        return;
+        throw MatrixException(" === ´íÎó£ºÊäÈëµÄ±í´ïÊ½·Ç·¨ === ", 2);
     }
     else {
         operand ans2=calc(command);
         if(ans2.isNum==1) {
-            cout << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << ans2.num;
+            cout << setiosflags(ios::fixed) << setprecision(Matrix::ACCU) << ans2.num << endl;
         }
         else {
             cout<<ans2.mat;
         }
-    };
-    return;
+        ans=ans2;
+        ans.mat.setName("ans");
+        for(vector<operand>::iterator it2=opedata.begin(); it2!=opedata.end(); it2++) {
+            if(it2->mat.getName()=="ans") {
+                opedata.erase(it2);
+                break;
+            }
+        }
+        opedata.push_back(ans);
+        return;
+    }; //¶ÔÓÚ±í´ïÊ½µÄ´¦Àí
 }
 
 operand calc(string exp) {
-    int index;  //ä¸‹æ ‡
-    int brac_l,brac_r,brac_num,brac_index;   //æ‹¬å·
+    int index;  //ÏÂ±ê
+    int brac_l,brac_r,brac_num,brac_index;   //À¨ºÅ
     for(index=0;exp[index]!='\0';index++) {
 
         if (exp.substr(index, 5) == "rank(") {
@@ -705,8 +723,8 @@ operand calc(string exp) {
                 }
             }
             if (exp[brac_index] == '\0') {
-                cout << "è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š";
-                //éœ€è¦é”™è¯¯å¤„ç†
+                throw MatrixException(" === ´íÎó£ºrank()º¯ÊıÎ´ÕÒµ½ºóÀ¨ºÅ === ", 2);
+                //ĞèÒª´íÎó´¦Àí
             } else {
                 stringstream replace_num;
                 replace_num<<calc(exp.substr(brac_l+1,brac_r-brac_l-1)).mat.rank();
@@ -727,15 +745,16 @@ operand calc(string exp) {
                 }
             }
             if (exp[brac_index] == '\0') {
-                cout << "è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š";
-                //éœ€è¦é”™è¯¯å¤„ç†
+                throw MatrixException(" === ´íÎó£ºadj()º¯ÊıÎ´ÕÒµ½ºóÀ¨ºÅ === ", 2);
+                //ĞèÒª´íÎó´¦Àí
             } else {
                 string new_name;
+                string underline="_";
                 char replace_name;
                 int i=0;
                 while(1) {
                     replace_name='a'+i;
-                    new_name="_"+replace_name;
+                    new_name=underline+replace_name;
                     vector<operand>::iterator it=opedata.begin();
                     for(; it!=opedata.end(); it++) {
                         if(it->mat.getName() == new_name) {
@@ -772,8 +791,8 @@ operand calc(string exp) {
                 }
             }
             if (exp[brac_index] == '\0') {
-                cout << "è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š";
-                //éœ€è¦é”™è¯¯å¤„ç†
+                throw MatrixException(" === ´íÎó£ºdet()º¯ÊıÎ´ÕÒµ½ºóÀ¨ºÅ === ", 2);
+                //ĞèÒª´íÎó´¦Àí
             } else {
                 stringstream replace_num;
                 replace_num<<calc(exp.substr(brac_l+1,brac_r-brac_l-1)).mat.det();
@@ -802,7 +821,7 @@ operand calc(string exp) {
             read.clear();
             i=index+1;
             continue;
-        } //å¸¦è´Ÿå·çš„æ•°
+        } //´ø¸ººÅµÄÊı
         else if(exp[i]>='0'&&exp[i]<='9') {
             int index=i+1;
             while(exp[index]!='\7') {
@@ -816,7 +835,7 @@ operand calc(string exp) {
             read.clear();
             i=index+1;
             continue;
-        } //ä¸å¸¦è´Ÿå·çš„æ•°
+        } //²»´ø¸ººÅµÄÊı
         else if(exp[i]=='#'&&exp[i+1]=='[') {
             int index=i+1;
             while(exp[index]!='\7') {
@@ -830,7 +849,7 @@ operand calc(string exp) {
             read.clear();
             i=index+1;
             continue;
-        } //å¸¦è´Ÿå·çš„çŸ©é˜µ
+        } //´ø¸ººÅµÄ¾ØÕó
         else if(exp[i]=='[') {
             int index=i+1;
             while(exp[index]!='\7') {
@@ -843,7 +862,7 @@ operand calc(string exp) {
             read.clear();
             i=index+1;
             continue;
-        } //ä¸å¸¦è´Ÿå·çš„çŸ©é˜µ
+        } //²»´ø¸ººÅµÄ¾ØÕó
         else if(exp[i]=='#'&& (isalpha(exp[i+1])||exp[i+1]=='_') ) {
             int index=i+1;
             while(exp[index]!='\7') {
@@ -860,12 +879,11 @@ operand calc(string exp) {
                 }
             }
             if(it==opedata.end()) {
-                cout << "no such variable QwQ";
-                //é”™è¯¯å¤„ç†ï¼šå˜é‡åæœªå®šä¹‰
+                throw MatrixException(" === ´íÎó£ºÎ´ÕÒµ½±äÁ¿ === ", 2);
             }
             i=index+1;
             continue;
-        } //å¸¦è´Ÿå·çš„å˜é‡
+        } //´ø¸ººÅµÄ±äÁ¿
         else if(isalpha(exp[i])||exp[i]=='_') {
             int index=i+1;
             while(exp[index]!='\7') {
@@ -882,14 +900,16 @@ operand calc(string exp) {
                 }
             }
             if(it==opedata.end()) {
-                cout << "no such variable QwQ";
-                //é”™è¯¯å¤„ç†ï¼šå˜é‡åæœªå®šä¹‰
+                throw MatrixException(" === ´íÎó£ºÎ´ÕÒµ½±äÁ¿ === ", 2);
             }
             i=index+1;
             continue;
-        } //ä¸å¸¦è´Ÿå·çš„å˜é‡
-          //å®Œæˆå¯¹æ“ä½œæ•°çš„å‹å…¥
+        } //²»´ø¸ººÅµÄ±äÁ¿
+          //Íê³É¶Ô²Ù×÷ÊıµÄÑ¹Èë
         else if(exp[i]=='+') {
+            if(datastk.empty()) {
+                throw MatrixException(" === ´íÎó£º±í´ïÊ½·Ç·¨(¼ÓºÅ´íÎó) === ", 2);
+            }
             operand data1=datastk.top();
             datastk.pop();
             operand data2=datastk.top();
@@ -899,19 +919,23 @@ operand calc(string exp) {
                 result.isNum=1;
                 result.num=data1.num+data2.num;
                 datastk.push(result);
-            } //æ•°å­—ç›¸åŠ 
+            } //Êı×ÖÏà¼Ó
             else if(!data1.isNum&&!data2.isNum) {
                 result.isNum=0;
                 result.mat=data1.mat+data2.mat;
                 datastk.push(result);
-            } //çŸ©é˜µç›¸åŠ 
+            } //¾ØÕóÏà¼Ó
             else {
-                //é”™è¯¯å¤„ç†ï¼šæ•°å­—å’ŒçŸ©é˜µç›¸åŠ 
+                throw MatrixException(" === ´íÎó£ºÊı×ÖÓë¾ØÕó²»¿É×ö¼Ó·¨ === ", 2);
+                //´íÎó´¦Àí£ºÊı×ÖºÍ¾ØÕóÏà¼Ó
             }
             i++;
             continue;
         }
         else if(exp[i]=='-') {
+            if(datastk.empty()) {
+                throw MatrixException(" === ´íÎó£º±í´ïÊ½·Ç·¨(¼õºÅ´íÎó) === ", 2);
+            }
             operand data1=datastk.top();
             datastk.pop();
             operand data2=datastk.top();
@@ -921,19 +945,23 @@ operand calc(string exp) {
                 result.isNum=1;
                 result.num=data2.num-data1.num;
                 datastk.push(result);
-            } //æ•°å­—ç›¸å‡
+            } //Êı×ÖÏà¼õ
             else if(!data1.isNum&&!data2.isNum) {
                 result.isNum=0;
                 result.mat=data2.mat-data1.mat;
                 datastk.push(result);
-            } //çŸ©é˜µç›¸å‡
+            } //¾ØÕóÏà¼õ
             else {
-                //é”™è¯¯å¤„ç†ï¼šæ•°å­—å’ŒçŸ©é˜µç›¸åŠ 
+                throw MatrixException(" === ´íÎó£ºÊı×ÖÓë¾ØÕó²»¿É×ö¼õ·¨ === ", 2);
+                //´íÎó´¦Àí£ºÊı×ÖºÍ¾ØÕóÏà¼õ
             }
             i++;
             continue;
         }
         else if(exp[i]=='*') {
+            if(datastk.empty()) {
+                throw MatrixException(" === ´íÎó£º±í´ïÊ½·Ç·¨(³ËºÅ´íÎó) === ", 2);
+            }
             operand data1=datastk.top();
             datastk.pop();
             operand data2=datastk.top();
@@ -943,12 +971,12 @@ operand calc(string exp) {
                 result.isNum=1;
                 result.num=data1.num*data2.num;
                 datastk.push(result);
-            } //æ•°å­—ç›¸ä¹˜
+            } //Êı×ÖÏà³Ë
             else if(!data1.isNum&&!data2.isNum) {
                 result.isNum=0;
                 result.mat=data1.mat*data2.mat;
                 datastk.push(result);
-            } //çŸ©é˜µç›¸ä¹˜
+            } //¾ØÕóÏà³Ë
             else {
                 result.isNum=0;
                 if(data1.isNum) {
@@ -972,19 +1000,23 @@ operand calc(string exp) {
                 result.isNum=1;
                 result.num=data2.num/data1.num;
                 datastk.push(result);
-            } //æ•°å­—ç›¸é™¤
+            } //Êı×ÖÏà³ı
             else if(data1.isNum&&!data2.isNum) {
                 result.isNum=0;
                 result.mat=data2.mat/data1.num;
                 datastk.push(result);
-            } //çŸ©é˜µæ•°é™¤
+            } //¾ØÕóÊı³ı
             else {
-                //é”™è¯¯å¤„ç†ï¼šçŸ©é˜µç›¸é™¤æˆ–è€…æ•°å­—é™¤ä»¥çŸ©é˜µ
+                throw MatrixException(" === ´íÎó£º¾ØÕó²»¿É×÷Îª³ıÊı === ", 2);
+                //´íÎó´¦Àí£º¾ØÕóÏà³ı»òÕßÊı×Ö³ıÒÔ¾ØÕó
             }
             i++;
             continue;
         }
         else if(exp[i]=='^') {
+            if(datastk.empty()) {
+                throw MatrixException(" === ´íÎó£º±í´ïÊ½·Ç·¨(ÃİºÅ´íÎó) === ", 2);
+            }
             operand data1=datastk.top();
             datastk.pop();
             operand data2=datastk.top();
@@ -995,8 +1027,14 @@ operand calc(string exp) {
                 result.mat=data2.mat.power(data1.num);
                 datastk.push(result);
             }
+            else if(data1.isNum&&data2.isNum) {
+                result.isNum=1;
+                result.num=pow(data2.num,data1.num);
+                datastk.push(result);
+            }
             else {
-                //éæ³•å¹‚
+                throw MatrixException(" === ´íÎó£º¾ØÕó²»¿É×÷ÎªÖ¸Êı === ", 2);
+                //·Ç·¨Ãİ
             }
             i++;
             continue;
@@ -1006,11 +1044,11 @@ operand calc(string exp) {
 }
 
 string rev_polish(string exp) {
-    string pol; //é€†æ³¢å…°è¾“å‡º
-    stack<char> ope; //æ“ä½œç¬¦
+    string pol; //Äæ²¨À¼Êä³ö
+    stack<char> ope; //²Ù×÷·û
     for(int i=0; exp[i]!='\0'; i++) {
         if(exp[i]=='-'&&i==0||exp[i]=='-'&&(exp[i-1]=='+'||exp[i-1]=='-'||exp[i-1]=='*'||exp[i-1]=='/'||exp[i-1]=='^'||exp[i-1]=='(')) {
-            exp[i]='#'; //å°†è´Ÿå·è€Œä¸æ˜¯å‡å·æ¢ä¸º#å·
+            exp[i]='#'; //½«¸ººÅ¶ø²»ÊÇ¼õºÅ»»Îª#ºÅ
         }
     }
     int i=0;
@@ -1028,7 +1066,7 @@ string rev_polish(string exp) {
             pol+='\7';
             i=index;
             continue;
-        } //æ‰¾åˆ°æ•°å­—
+        } //ÕÒµ½Êı×Ö
         else if(exp[i]=='#'&&exp[i+1]=='['||exp[i]=='[') {
             int index=i+1;
             while(exp[index]!=']') {
@@ -1038,7 +1076,7 @@ string rev_polish(string exp) {
             pol+='\7';
             i=index+1;
             continue;
-        } //æ‰¾åˆ°çŸ©é˜µ
+        } //ÕÒµ½¾ØÕó
         else if(exp[i]=='#'&& (isalpha(exp[i+1])||exp[i+1]=='_') ||isalpha(exp[i])||exp[i]=='_') {
             int index=i+1;
             while(isalpha(exp[index])||exp[index]=='_') {
@@ -1048,21 +1086,21 @@ string rev_polish(string exp) {
             pol+='\7';
             i=index;
             continue;
-        } //æ‰¾åˆ°å˜é‡
+        } //ÕÒµ½±äÁ¿
         else if(exp[i]=='(') {
             ope.push(exp[i]);
             i++;
             continue;
-        } //é‡åˆ°å·¦æ‹¬å·ç›´æ¥å­˜å…¥è¿ç®—ç¬¦æ ˆ
+        } //Óöµ½×óÀ¨ºÅÖ±½Ó´æÈëÔËËã·ûÕ»
         else if(exp[i]==')') {
             while(ope.top()!='(') {
                 pol+=ope.top();
                 ope.pop();
             }
-            ope.pop(); //ä¸¢æ‰å·¦æ‹¬å·
+            ope.pop(); //¶ªµô×óÀ¨ºÅ
             i++;
             continue;
-        } //é‡åˆ°å³æ‹¬å·ä¸€ç›´è¾“å‡ºç›´åˆ°é‡åˆ°å·¦æ‹¬å·
+        } //Óöµ½ÓÒÀ¨ºÅÒ»Ö±Êä³öÖ±µ½Óöµ½×óÀ¨ºÅ
         else if(exp[i]=='+'||exp[i]=='-'||exp[i]=='*'||exp[i]=='/'||exp[i]=='^') {
             if(ope.empty()||ope.top()=='('||priority(exp[i])>priority(ope.top())) {
                 ope.push(exp[i]);
@@ -1076,11 +1114,9 @@ string rev_polish(string exp) {
             }
             i++;
             continue;
-        } //é‡åˆ°éæ‹¬å·è¿ç®—ç¬¦
+        } //Óöµ½·ÇÀ¨ºÅÔËËã·û
         else {
-            //éæ³•è¾“å…¥ï¼Œé”™è¯¯å¤„ç†
-            i++;
-            continue;
+            throw MatrixException(" === ´íÎó£ºÔËËã·û·Ç·¨ === ", 2);
         }
     }
     while (!ope.empty()) {
@@ -1101,7 +1137,8 @@ unsigned short int priority(char ope) {
         return 0;
     }
     else {
-        //éœ€è¦é”™è¯¯å¤„ç†
+        throw MatrixException(" === ´íÎó£ºÔËËã·û·Ç·¨ === ", 2);
+        //ĞèÒª´íÎó´¦Àí
     }
 }
 
@@ -1152,7 +1189,7 @@ unsigned short int priority(char ope) {
 //        }
 //    }
 //    if(check(command)==0){
-//        cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š"<<endl;
+//        cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º"<<endl;
 //        return;
 //    }
 //    show_mat(calculate(command,matdata),accu);
@@ -1161,7 +1198,7 @@ unsigned short int priority(char ope) {
 //void divide(string command,int equal_index,vector<mat> &matdata,unsigned short int accu){
 //    for(int check_index=equal_index+1;command[check_index]!='\0';check_index++){
 //        if(command[check_index]=='='){
-//            cout<<"è¾“å…¥äº†è¿‡å¤šçš„ç­‰äºå·ï¼Œè¯·é‡æ–°è¾“å…¥ï¼š"<<endl;
+//            cout<<"ÊäÈëÁË¹ı¶àµÄµÈÓÚºÅ£¬ÇëÖØĞÂÊäÈë£º"<<endl;
 //            return;
 //        }
 //    }
@@ -1170,7 +1207,7 @@ unsigned short int priority(char ope) {
 //    divide1=command.substr(0,equal_index);
 //    divide2=command.substr(equal_index+1,sizeof(command)/sizeof(command[0])-equal_index);
 //    if(!(check(divide2)&&check_name(divide1))){
-//        cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š"<<endl;
+//        cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º"<<endl;
 //        return;
 //    }
 //    vector<mat>::iterator it;
@@ -1192,8 +1229,8 @@ unsigned short int priority(char ope) {
 //}
 //
 //vector<vector<double> > calculate(string command,vector<mat> &matdata){
-//    int index;  //ä¸‹æ ‡
-//    int brac_l,brac_r,brac_num,brac_index;   //æ‹¬å·
+//    int index;  //ÏÂ±ê
+//    int brac_l,brac_r,brac_num,brac_index;   //À¨ºÅ
 //    for(index=0;command[index]!='\0';index++){
 //
 //        if(command.substr(index,5)=="rank("){
@@ -1208,7 +1245,7 @@ unsigned short int priority(char ope) {
 //                }
 //            }
 //            if(command[brac_index]=='\0'){
-//                cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š";
+//                cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º";
 //                vector<vector<double> > fail;
 //                return fail;
 //            }
@@ -1241,7 +1278,7 @@ unsigned short int priority(char ope) {
 //                }
 //            }
 //            if(command[brac_index]=='\0'){
-//                cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š";
+//                cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º";
 //                vector<vector<double> > fail;
 //                return fail;
 //            }
@@ -1274,7 +1311,7 @@ unsigned short int priority(char ope) {
 //                }
 //            }
 //            if(command[brac_index]=='\0'){
-//                cout<<"è¾“å…¥çš„è¡¨è¾¾å¼éæ³•ï¼è¯·é‡æ–°è¾“å…¥ï¼š";
+//                cout<<"ÊäÈëµÄ±í´ïÊ½·Ç·¨£¡ÇëÖØĞÂÊäÈë£º";
 //                vector<vector<double> > fail;
 //                return fail;
 //            }
